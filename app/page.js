@@ -1,6 +1,7 @@
 import { Nav } from "@/components/sections/Nav";
 import { SearchFlightsAndStaysFormShortcut } from "@/components/pages/home/sections/SearchFlightsAndStaysFormShortcut";
 import { PopularTrips } from "@/components/pages/home/sections/PopularTrips";
+import { BookHotels } from "@/components/pages/hotels/sections/BookHotels";
 import { FindFlightAndHotelcards } from "@/components/pages/home/sections/FindFlightAndHotelCards";
 import { Reviews } from "@/components/pages/home/sections/Reviews";
 import { Footer } from "@/components/sections/Footer";
@@ -51,8 +52,9 @@ export default async function HomePage() {
       </header>
 
       <main className="mx-auto w-[90%]">
-        <PopularTrips />
-        <FindFlightAndHotelcards />
+        {/* <PopularTrips /> */}
+        {/* <FindFlightAndHotelcards /> */}
+        <BookHotels />
         <Reviews />
       </main>
       <Footer />

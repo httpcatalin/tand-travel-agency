@@ -39,8 +39,8 @@ function SearchStaysForm({ searchParams = {} }) {
       destination: "",
       checkIn: new Date().toString(),
       checkOut: addDays(new Date(), 1).toString(),
-      rooms: 1,
-      guests: 1,
+      adults: 2,
+      children: 0,
       promocode: "",
     };
   }
@@ -51,6 +51,7 @@ function SearchStaysForm({ searchParams = {} }) {
   }, []);
 
   const stayFormData = useSelector((state) => state.stayForm.value);
+  console.log(stayFormData);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -61,20 +62,22 @@ function SearchStaysForm({ searchParams = {} }) {
       );
       return;
     }
-    if (stayFormData.rooms > 5) {
-      alert("Maximum 5 rooms are allowed");
+    if (stayFormData.adults > 10) {
+      alert("Maximum 10 adults are allowed");
       return;
     }
-    if (stayFormData.guests > 10) {
-      alert("Maximum 10 guests are allowed");
+    if (stayFormData.children > 10) {
+      alert("Maximum 10 children are allowed");
       return;
     }
-    if (stayFormData.rooms <= 0) {
-      alert("Please select at least one room");
+    if (stayFormData.adults <= 0) {
+      alert("Please select at least one adult");
     }
-    if (stayFormData.guests <= 0) {
+    if (stayFormData.guests < 0) {
       alert("Please select at least one guest");
     }
+
+    localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
 
     e.target.submit();
   }
@@ -96,7 +99,7 @@ function SearchStaysForm({ searchParams = {} }) {
     <form
       id="stayForm"
       method="get"
-      action="/hotels/search"
+      action="/hotels/123/book"
       onSubmit={handleSubmit}
     >
       <input
@@ -109,9 +112,9 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="checkOut" value={stayFormData.checkOut} />
 
-      <input type="hidden" name="rooms" value={stayFormData.rooms} />
+      <input type="hidden" name="rooms" value={stayFormData.adults} />
 
-      <input type="hidden" name="guests" value={stayFormData.guests} />
+      <input type="hidden" name="guests" value={stayFormData.children} />
 
       <input type="hidden" name="promocode" value={stayFormData.promocode} />
 
@@ -201,7 +204,7 @@ function SearchStaysForm({ searchParams = {} }) {
 
         <div className="relative flex h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Rooms <span className={"text-red-600"}>*</span> - Guests{" "}
+            Adults <span className={"text-red-600"}>*</span> - Children{" "}
             <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full grow">
@@ -211,26 +214,26 @@ function SearchStaysForm({ searchParams = {} }) {
                 className="h-full w-full justify-start rounded-lg"
               >
                 <Button className="font-normal justify-start" variant={"ghost"}>
-                  {`${stayFormData.rooms} Rooms, ${stayFormData.guests} Guests`}
+                  {`${stayFormData.adults} Adults, ${stayFormData.children} Children`}
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
                 <Card className="p-3 bg-primary/30 border-primary border-2 mb-3">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Rooms (max 5)</CardTitle>
+                    <CardTitle>Adults </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
                     <Input
-                      defaultValue={1}
-                      label="Rooms"
+                      defaultValue={2}
+                      label="Adults"
                       type="number"
                       min={1}
-                      max={5}
-                      name="rooms"
+                      max={10}
+                      name="adults"
                       onChange={(e) => {
                         dispatch(
                           setStayForm({
-                            rooms: +e.currentTarget.value,
+                            adults: +e.currentTarget.value,
                           })
                         );
                       }}
@@ -239,20 +242,20 @@ function SearchStaysForm({ searchParams = {} }) {
                 </Card>
                 <Card className="p-3 bg-primary/30 border-primary border-2">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Guests (max 10)</CardTitle>
+                    <CardTitle>Children </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex-col flex gap-3">
                     <Input
-                      defaultValue={1}
-                      label="Guests"
+                      defaultValue={0}
+                      label="Children"
                       type="number"
-                      name="guests"
-                      min={1}
+                      name="children"
+                      min={0}
                       max={10}
                       onChange={(e) => {
                         dispatch(
                           setStayForm({
-                            guests: +e.currentTarget.value,
+                            children: +e.currentTarget.value,
                           })
                         );
                       }}
@@ -265,12 +268,6 @@ function SearchStaysForm({ searchParams = {} }) {
         </div>
       </div>
       <div className="flex justify-end gap-[24px]">
-        <AddPromoCode
-          defaultCode={stayFormData.promocode}
-          getPromoCode={(promo) => {
-            dispatch(setStayForm({ promocode: promo }));
-          }}
-        />
         <Button type="submit" className="gap-1">
           <Image
             width={24}
@@ -278,7 +275,7 @@ function SearchStaysForm({ searchParams = {} }) {
             src={"/icons/building.svg"}
             alt={"search_icon"}
           />
-          <span>Show Places</span>
+          <span>Confirm</span>
         </Button>
       </div>
     </form>

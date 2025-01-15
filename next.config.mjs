@@ -64,6 +64,10 @@ const nextConfig = {
             key: "X-Pathname",
             value: "/:path*",
           },
+          {
+            key: 'Content-Security-Policy',
+            value: "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://maps.googleapis.com"
+          }
         ],
       },
     ];

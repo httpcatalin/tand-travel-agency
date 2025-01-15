@@ -3,7 +3,7 @@ import { FareCard } from "@/components/FareCard";
 import { HotelDetailsCard } from "@/components/pages/hotels.book/HotelDetailsCard";
 import { AuthenticationCard } from "@/components/AuthenticationCard";
 import { ChoosePaymentCard } from "@/components/pages/flights.book/ChoosePaymentCard";
-
+import { makeStore } from "@/reduxStore/store";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
@@ -26,10 +26,10 @@ export default function FlightBookPage() {
       <main className="mx-auto mb-[80px] mt-[40px] w-[95%] text-secondary">
         <BreadcrumbUI />
 
-        <div className="mt-[30px] flex gap-[20px] max-lg:flex-col-reverse lg:gap-[30px] xl:gap-[40px]">
+        <div className="mt-[30px] flex gap-[20px] max-lg:flex-col lg:gap-[30px] xl:gap-[40px]">
           <div>
             <HotelDetailsCard />
-            <div className="mb-[20px] rounded-[12px] bg-white p-[16px] shadow-lg lg:mb-[30px] xl:mb-[40px]">
+            {/* <div className="mb-[20px] rounded-[12px] bg-white p-[16px] shadow-lg lg:mb-[30px] xl:mb-[40px]">
               <RadioGroup defaultValue="Pay_in_full">
                 <Label className="flex rounded-[12px] justify-between p-[16px] has-[[data-state='checked']]:bg-primary grow items-center gap-[32px]">
                   <div>
@@ -63,11 +63,11 @@ export default function FlightBookPage() {
                   More info
                 </Link>
               </p>
-            </div>
+            </div> */}
 
-            <div className="rounded-12px bg-white p-16px shadow-small">
+            {/* <div className="rounded-12px bg-white p-16px shadow-small">
               {isLoggedIn ? <ChoosePaymentCard /> : <AuthenticationCard />}
-            </div>
+            </div> */}
           </div>
           <div className="h-min grow rounded-12px bg-white p-24px shadow-small">
             <FareCard

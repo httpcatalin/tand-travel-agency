@@ -1,12 +1,12 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { addDays } from "date-fns";
-
+const today = new Date();
 const defaultValue = {
   destination: "",
-  checkIn: new Date().toString(),
+  checkIn: new Date(today.getFullYear(), today.getMonth(), today.getDay()).toString(),
   checkOut: addDays(new Date(), 1).toString(),
-  rooms: 1,
-  guests: 1,
+  adults: 2,
+  children: 0,
   promocode: "",
   filters: {
     priceRange: [50, 1200],

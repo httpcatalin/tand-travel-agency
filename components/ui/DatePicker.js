@@ -15,7 +15,7 @@ import {
 export function DatePicker({
   className,
   date = new Date(),
-  setDate = () => {},
+  setDate = () => { },
   ...props
 }) {
   return (
@@ -29,7 +29,7 @@ export function DatePicker({
             className
           )}
         >
-          {date ? format(new Date(date), "yy/dd") : <span>Pick a date</span>}
+          {date ? format(new Date(date), "dd/MM/yyyy") : <span>Pick a date</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
@@ -40,7 +40,7 @@ export function DatePicker({
             day_today: "border border-secondary",
           }}
           selected={new Date(date)}
-          onSelect={setDate}
+          onSelect={(date) => setDate(date)} 
           initialFocus
           {...props}
         />

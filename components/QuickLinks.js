@@ -1,198 +1,112 @@
+'use client';
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { Logo } from "@/components/Logo";
-export function QuickLinks() {
-  const links = {
-    "Our Destination": [
-      {
-        name: "Canada",
-        href: "/",
-      },
-      {
-        name: "Alaska",
-        href: "#",
-      },
-      {
-        name: "France",
-        href: "#",
-      },
-      {
-        name: "Iceland",
-        href: "#",
-      },
-    ],
-    "Our Activity": [
-      {
-        name: "Northern Lights",
-        href: "#",
-      },
-      {
-        name: "Cruising & Sailing",
-        href: "#",
-      },
-      {
-        name: "Multi-activities",
-        href: "#",
-      },
-      {
-        name: "Kayaing",
-        href: "#",
-      },
-    ],
-    "Travel Blogs": [
-      {
-        name: "Bali Travel Guide",
-        href: "#",
-      },
-      {
-        name: "Srilanka Travel Guide",
-        href: "#",
-      },
-      {
-        name: "Peru Travel Guide",
-        href: "#",
-      },
-    ],
-    "About Us": [
-      {
-        name: "Our Story",
-        href: "#",
-      },
-      {
-        name: "Work with Us",
-        href: "#",
-      },
-    ],
-    Contact: [
-      {
-        name: "Contact Us",
-        href: "#",
-      },
-    ],
-  };
+import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
+
+const mapContainerStyle = {
+  height: "400px",
+  width: "100%",
+  borderRadius: "8px"
+};
+
+const defaultMapOptions = {
+  center: { lat: 47.031456, lng: 28.82168 },
+  zoom: 16.5,
+  disableDefaultUI: false,
+  zoomControl: false,
+  mapTypeControl: false,
+  scaleControl: false,
+  streetViewControl: false,
+  rotateControl: false,
+  fullscreenControl: false
+};
+
+const GoogleMapComponent = () => {
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+  });
+
+  if (loadError) {
+    return (
+      <div className="h-[400px] w-full flex flex-col items-center justify-center bg-gray-100 rounded-lg p-4">
+        <p className="text-red-500 mb-2">Unable to load Google Maps</p>
+        <p className="text-sm text-gray-600">
+          {loadError.message || 'Please check your API key and network connection'}
+        </p>
+      </div>
+    );
+  }
+
+  if (!isLoaded) {
+    return (
+      <div className="h-[400px] w-full flex items-center justify-center bg-gray-100 rounded-lg">
+        <div className="animate-pulse">Loading maps...</div>
+      </div>
+    );
+  }
 
   return (
-    <section className="relative z-10 mx-auto mb-[80px] flex w-[90%] gap-[40px] max-sm:flex-col sm:gap-[140px]">
-      <div>
-        <Logo
-          className={"mb-[24px] block h-[40px] w-fit"}
-          worldFill={"white"}
-          otherFill={"black"}
-        />
-        <div className="flex gap-[12px] text-secondary">
-          <Link
-            aria-label={"Link to Facebook.com"}
-            href={"https://www.facebook.com"}
-            target="_blank"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
+    <GoogleMap
+      mapContainerStyle={mapContainerStyle}
+      options={defaultMapOptions}
+    >
+      <MarkerF
+        position={defaultMapOptions.center}
+        title="Our Location"
+      />
+    </GoogleMap>
+  );
+};
+
+export function QuickLinks() {
+  return (
+    <section className="relative z-10 mx-auto mb-20 w-[90%] max-w-7xl">
+      <div className="flex gap-[40px] max-sm:flex-col sm:gap-[140px]">
+        <div className="flex-shrink-0">
+          <Logo
+            className="mb-6 block h-10 w-fit"
+            worldFill="white"
+            otherFill="black"
+          />
+          <div className="flex gap-3 text-secondary">
+            <Link
+              aria-label="Visit us on Facebook"
+              href="https://www.facebook.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors duration-200"
             >
-              <path
-                fillRule="evenodd"
-                clipRule="evenodd"
-                d="M1 10.0503C1 14.5248 4.24975 18.2455 8.5 19V12.4998H6.25V10H8.5V7.99975C8.5 5.74975 9.94975 4.50025 12.0002 4.50025C12.6497 4.50025 13.3503 4.6 13.9998 4.69975V7H12.85C11.7498 7 11.5 7.54975 11.5 8.25025V10H13.9L13.5002 12.4998H11.5V19C15.7502 18.2455 19 14.5255 19 10.0503C19 5.0725 14.95 1 10 1C5.05 1 1 5.0725 1 10.0503Z"
-                fill="currentColor"
-              />
-            </svg>
-          </Link>
-          <Link
-            aria-label={"Link to Twitter.com"}
-            href={"https://www.twitter.com"}
-            target="_blank"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
-            >
-              <path
-                d="M19.7029 4.26137C19.0071 4.5697 18.2596 4.77803 17.4737 4.8722C18.2846 4.38703 18.8912 3.62342 19.1804 2.72387C18.4186 3.17636 17.5849 3.49486 16.7154 3.66553C16.1307 3.04125 15.3563 2.62747 14.5124 2.48843C13.6684 2.34938 12.8022 2.49286 12.0481 2.89658C11.2941 3.30029 10.6944 3.94167 10.3422 4.72112C9.99003 5.50057 9.90503 6.37449 10.1004 7.2072C8.55682 7.1297 7.04677 6.72849 5.66827 6.02962C4.28977 5.33075 3.07362 4.34983 2.09875 3.15053C1.76542 3.72553 1.57375 4.3922 1.57375 5.1022C1.57338 5.74136 1.73078 6.37073 2.03198 6.93448C2.33319 7.49822 2.76888 7.9789 3.30042 8.33387C2.68398 8.31425 2.08114 8.14769 1.54208 7.84803V7.89803C1.54202 8.79448 1.85211 9.66335 2.41974 10.3572C2.98736 11.051 3.77756 11.5271 4.65625 11.7047C4.0844 11.8595 3.48486 11.8823 2.90292 11.7714C3.15083 12.5427 3.63375 13.2172 4.28406 13.7005C4.93437 14.1837 5.71951 14.4515 6.52958 14.4664C5.15444 15.5459 3.45616 16.1314 1.70792 16.1289C1.39823 16.129 1.08881 16.1109 0.78125 16.0747C2.55581 17.2157 4.62153 17.8212 6.73125 17.8189C13.8729 17.8189 17.7771 11.9039 17.7771 6.77387C17.7771 6.6072 17.7729 6.43887 17.7654 6.2722C18.5248 5.72301 19.1803 5.04295 19.7013 4.26387L19.7029 4.26137Z"
-                fill="currentColor"
-              />
-            </svg>
-          </Link>
-          <Link
-            aria-label={"Link to Youtube.com"}
-            href={"https://www.youtube.com"}
-            target="_blank"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
-            >
-              <g clipPath="url(#clip0_400_3200)">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="20"
+                height="21"
+                viewBox="0 0 20 21"
+                fill="none"
+                className="h-5 w-5"
+              >
                 <path
-                  d="M19.5829 5.56962C19.4696 5.16564 19.249 4.79991 18.9445 4.51128C18.6314 4.21379 18.2477 4.00098 17.8295 3.89295C16.2645 3.48045 9.99454 3.48045 9.99454 3.48045C7.38065 3.45071 4.7674 3.58151 2.16954 3.87212C1.75136 3.98813 1.36834 4.20569 1.05454 4.50545C0.746204 4.80212 0.522871 5.16795 0.406204 5.56878C0.125949 7.07857 -0.0102189 8.61157 -0.000462243 10.1471C-0.0104622 11.6813 0.125371 13.2138 0.406204 14.7255C0.520371 15.1246 0.742871 15.4888 1.05204 15.783C1.3612 16.0771 1.7462 16.2896 2.16954 16.4021C3.75537 16.8138 9.99454 16.8138 9.99454 16.8138C12.6118 16.8436 15.2283 16.7128 17.8295 16.4221C18.2477 16.3141 18.6314 16.1013 18.9445 15.8038C19.2489 15.5152 19.4693 15.1494 19.582 14.7455C19.8696 13.2362 20.0094 11.7026 19.9995 10.1663C20.0212 8.62345 19.8815 7.08259 19.5829 5.56878V5.56962ZM8.0012 13.0005V7.29462L13.2179 10.148L8.0012 13.0005Z"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M1 10.0503C1 14.5248 4.24975 18.2455 8.5 19V12.4998H6.25V10H8.5V7.99975C8.5 5.74975 9.94975 4.50025 12.0002 4.50025C12.6497 4.50025 13.3503 4.6 13.9998 4.69975V7H12.85C11.7498 7 11.5 7.54975 11.5 8.25025V10H13.9L13.5002 12.4998H11.5V19C15.7502 18.2455 19 14.5255 19 10.0503C19 5.0725 14.95 1 10 1C5.05 1 1 5.0725 1 10.0503Z"
                   fill="currentColor"
                 />
-              </g>
-              <defs>
-                <clipPath id="clip0_400_3200">
-                  <rect
-                    width="20"
-                    height="20"
-                    fill="white"
-                    transform="translate(0 0.147217)"
-                  />
-                </clipPath>
-              </defs>
-            </svg>
-          </Link>
-          <Link
-            aria-label={"Link to Instagram.com"}
-            href={"https://www.instagram.com"}
-            target="_blank"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="20"
-              height="21"
-              viewBox="0 0 20 21"
-              fill="none"
+              </svg>
+            </Link>
+            <Link
+              aria-label="Visit us on Instagram"
+              href="https://www.instagram.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-primary transition-colors duration-200"
             >
-              <path
-                d="M9.49787 7.66546C7.93707 7.66546 6.66333 8.9392 6.66333 10.5C6.66333 12.0608 7.93707 13.3345 9.49787 13.3345C11.0587 13.3345 12.3324 12.0608 12.3324 10.5C12.3324 8.9392 11.0587 7.66546 9.49787 7.66546ZM17.9994 10.5C17.9994 9.32621 18.01 8.16305 17.9441 6.99138C17.8782 5.63046 17.5677 4.42264 16.5725 3.42747C15.5752 2.43017 14.3695 2.12184 13.0086 2.05592C11.8348 1.99 10.6717 2.00063 9.5 2.00063C8.32621 2.00063 7.16305 1.99 5.99138 2.05592C4.63046 2.12184 3.42264 2.4323 2.42747 3.42747C1.43017 4.42477 1.12184 5.63046 1.05592 6.99138C0.99 8.16517 1.00063 9.32833 1.00063 10.5C1.00063 11.6717 0.99 12.837 1.05592 14.0086C1.12184 15.3695 1.4323 16.5774 2.42747 17.5725C3.42477 18.5698 4.63046 18.8782 5.99138 18.9441C7.16517 19.01 8.32833 18.9994 9.5 18.9994C10.6738 18.9994 11.837 19.01 13.0086 18.9441C14.3695 18.8782 15.5774 18.5677 16.5725 17.5725C17.5698 16.5752 17.8782 15.3695 17.9441 14.0086C18.0121 12.837 17.9994 11.6738 17.9994 10.5ZM9.49787 14.8613C7.08437 14.8613 5.13655 12.9135 5.13655 10.5C5.13655 8.08649 7.08437 6.13868 9.49787 6.13868C11.9114 6.13868 13.8592 8.08649 13.8592 10.5C13.8592 12.9135 11.9114 14.8613 9.49787 14.8613ZM14.0378 6.97862C13.4743 6.97862 13.0193 6.52356 13.0193 5.96006C13.0193 5.39655 13.4743 4.94149 14.0378 4.94149C14.6013 4.94149 15.0564 5.39655 15.0564 5.96006C15.0565 6.09386 15.0303 6.22639 14.9792 6.35004C14.9281 6.4737 14.853 6.58605 14.7584 6.68067C14.6638 6.77528 14.5515 6.8503 14.4278 6.90143C14.3041 6.95256 14.1716 6.97879 14.0378 6.97862Z"
-                fill="currentColor"
-              />
-            </svg>
-          </Link>
+              <svg width="18px" height="18px" viewBox="0 0 24 24" role="img" xmlns="http://www.w3.org/2000/svg"><title>Instagram icon</title><path d="M12 0C8.74 0 8.333.015 7.053.072 5.775.132 4.905.333 4.14.63c-.789.306-1.459.717-2.126 1.384S.935 3.35.63 4.14C.333 4.905.131 5.775.072 7.053.012 8.333 0 8.74 0 12s.015 3.667.072 4.947c.06 1.277.261 2.148.558 2.913.306.788.717 1.459 1.384 2.126.667.666 1.336 1.079 2.126 1.384.766.296 1.636.499 2.913.558C8.333 23.988 8.74 24 12 24s3.667-.015 4.947-.072c1.277-.06 2.148-.262 2.913-.558.788-.306 1.459-.718 2.126-1.384.666-.667 1.079-1.335 1.384-2.126.296-.765.499-1.636.558-2.913.06-1.28.072-1.687.072-4.947s-.015-3.667-.072-4.947c-.06-1.277-.262-2.149-.558-2.913-.306-.789-.718-1.459-1.384-2.126C21.319 1.347 20.651.935 19.86.63c-.765-.297-1.636-.499-2.913-.558C15.667.012 15.26 0 12 0zm0 2.16c3.203 0 3.585.016 4.85.071 1.17.055 1.805.249 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.422.36 1.057.413 2.227.057 1.266.07 1.646.07 4.85s-.015 3.585-.074 4.85c-.061 1.17-.256 1.805-.421 2.227-.224.562-.479.96-.899 1.382-.419.419-.824.679-1.38.896-.42.164-1.065.36-2.235.413-1.274.057-1.649.07-4.859.07-3.211 0-3.586-.015-4.859-.074-1.171-.061-1.816-.256-2.236-.421-.569-.224-.96-.479-1.379-.899-.421-.419-.69-.824-.9-1.38-.165-.42-.359-1.065-.42-2.235-.045-1.26-.061-1.649-.061-4.844 0-3.196.016-3.586.061-4.861.061-1.17.255-1.814.42-2.234.21-.57.479-.96.9-1.381.419-.419.81-.689 1.379-.898.42-.166 1.051-.361 2.221-.421 1.275-.045 1.65-.06 4.859-.06l.045.03zm0 3.678c-3.405 0-6.162 2.76-6.162 6.162 0 3.405 2.76 6.162 6.162 6.162 3.405 0 6.162-2.76 6.162-6.162 0-3.405-2.76-6.162-6.162-6.162zM12 16c-2.21 0-4-1.79-4-4s1.79-4 4-4 4 1.79 4 4-1.79 4-4 4zm7.846-10.405c0 .795-.646 1.44-1.44 1.44-.795 0-1.44-.646-1.44-1.44 0-.794.646-1.439 1.44-1.439.793-.001 1.44.645 1.44 1.439z" /></svg>
+            </Link>
+          </div>
         </div>
-      </div>
-      <div className="grid grow justify-start gap-[24px] md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {Object.entries(links).map((link, i) => {
-          return (
-            <div
-              key={link[0]}
-              className="text-[0.875rem] font-medium text-secondary/70"
-            >
-              <h3 className="mb-[16px] font-bold text-secondary">{link[0]}</h3>
-              <div className="flex flex-col gap-3">
-                {link[1].map((item) => {
-                  return (
-                    <div key={item.name}>
-                      <Link
-                        aria-label={"Link to " + item.name}
-                        href={item.href}
-                        className="text-[0.875rem] hover:underline inline font-medium text-secondary/70"
-                      >
-                        {item.name}
-                      </Link>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
+        <div className="flex-grow">
+          <GoogleMapComponent />
+        </div>
       </div>
     </section>
   );
