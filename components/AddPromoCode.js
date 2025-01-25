@@ -16,8 +16,8 @@ import Image from "next/image";
 
 import { useState } from "react";
 
-import { debounce } from "@/lib/utils";
-export function AddPromoCode({ defaultCode = "", getPromoCode = () => {} }) {
+
+export function AddPromoCode({ defaultCode = "", getPromoCode = () => { } }) {
   const [open, setOpen] = useState(false);
   const [promo, setPromo] = useState(defaultCode);
   return (
@@ -50,9 +50,9 @@ export function AddPromoCode({ defaultCode = "", getPromoCode = () => {} }) {
             name="promocode"
             className="col-span-3"
             defaultValue={defaultCode}
-            onChange={debounce((e) => {
+            onChange={(e) => {
               setPromo(e.target.value);
-            }, 200)}
+            }}
           />
         </div>
         <DialogFooter>

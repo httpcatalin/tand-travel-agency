@@ -29,6 +29,10 @@ import { addDays } from "date-fns";
 function SearchStaysForm({ searchParams = {} }) {
   const dispatch = useDispatch();
 
+  const nightsOptions = Array.from({ length: 14 }, (_, i) => (i + 1).toString());
+  const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  const childrenOptions = Array.from({ length: 5 }, (_, i) => (i).toString());
+
   let staySearchParamsObj = {};
   if (Object.keys(searchParams).length > 0) {
     for (const [key, value] of Object.entries(searchParams)) {
@@ -38,6 +42,7 @@ function SearchStaysForm({ searchParams = {} }) {
     staySearchParamsObj = {
       destination: "",
       checkIn: new Date().toString(),
+      nights: 3,
       checkOut: addDays(new Date(), 1).toString(),
       adults: 2,
       children: 0,
@@ -72,9 +77,11 @@ function SearchStaysForm({ searchParams = {} }) {
     }
     if (stayFormData.adults <= 0) {
       alert("Please select at least one adult");
+      return;
     }
-    if (stayFormData.guests < 0) {
-      alert("Please select at least one guest");
+    if (stayFormData.children < 0) {
+      alert("Please select non negative number for children");
+      return;
     }
 
     localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
@@ -114,7 +121,7 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="rooms" value={stayFormData.adults} />
 
-      <input type="hidden" name="guests" value={stayFormData.children} />
+      <input type="hidden" name="children" value={stayFormData.children} />
 
       <input type="hidden" name="promocode" value={stayFormData.promocode} />
 
@@ -169,10 +176,10 @@ function SearchStaysForm({ searchParams = {} }) {
           }
         >
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Check Out <span className={"text-red-600"}>*</span>
+            Nights <span className={"text-red-600"}>*</span>
           </span>
-          <div className="h-full grow">
-            <DatePicker
+          <div className="h-full flex items-center grow">
+            {/* <DatePicker
               date={stayFormData.checkOut}
               setDate={(date) => {
                 if (date == undefined) {
@@ -190,14 +197,30 @@ function SearchStaysForm({ searchParams = {} }) {
                 }
               }}
               className={"h-full w-full rounded-[8px]"}
-            />
+            /> */}
+            <select
+             value = {stayFormData.nights}
+             onChange = {(e) => {
+              dispatch(
+                setStayForm({
+                  nights: +e.target.value,
+                })
+              );
+             }}
+             className="ml-5 leading-none">
+              {nightsOptions.map((option, index) => (
+                <option key={index} value={option} className="h-full">
+                  {option}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="p-2">
             <Image
-              src={"/icons/calender.svg"}
+              src={"/icons/bed-filled.svg"}
               height={24}
               width={24}
-              alt="calender_icon"
+              alt="bed_filled_icon"
             />
           </div>
         </div>
@@ -223,21 +246,22 @@ function SearchStaysForm({ searchParams = {} }) {
                     <CardTitle>Adults </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                    <Input
-                      defaultValue={2}
-                      label="Adults"
-                      type="number"
-                      min={1}
-                      max={10}
-                      name="adults"
-                      onChange={(e) => {
-                        dispatch(
-                          setStayForm({
-                            adults: +e.currentTarget.value,
-                          })
-                        );
-                      }}
-                    />
+                  <select
+                   value = {stayFormData.adults}
+                   onChange = {(e) => {
+                    dispatch(
+                      setStayForm({
+                        adults: +e.target.value,
+                      })
+                    );
+                   }}
+                   className="w-10 ml-5 leading-none p-1">
+                    {adultsOptions.map((option, index) => (
+                      <option key={index} value={option} className="h-full">
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                   </CardContent>
                 </Card>
                 <Card className="p-3 bg-primary/30 border-primary border-2">
@@ -245,21 +269,22 @@ function SearchStaysForm({ searchParams = {} }) {
                     <CardTitle>Children </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex-col flex gap-3">
-                    <Input
-                      defaultValue={0}
-                      label="Children"
-                      type="number"
-                      name="children"
-                      min={0}
-                      max={10}
-                      onChange={(e) => {
-                        dispatch(
-                          setStayForm({
-                            children: +e.currentTarget.value,
-                          })
-                        );
-                      }}
-                    />
+                  <select
+                   value = {stayFormData.children}
+                   onChange = {(e) => {
+                    dispatch(
+                      setStayForm({
+                        children: +e.target.value,
+                      })
+                    );
+                   }}
+                   className="w-10 ml-5 leading-none p-1">
+                    {childrenOptions.map((option, index) => (
+                      <option key={index} value={option} className="h-full">
+                        {option}
+                      </option>
+                    ))}
+                  </select>
                   </CardContent>
                 </Card>
               </PopoverContent>

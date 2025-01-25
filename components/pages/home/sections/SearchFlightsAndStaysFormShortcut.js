@@ -18,15 +18,15 @@ export function SearchFlightsAndStaysFormShortcut({ className }) {
         className
       )}
     >
-      <Tabs defaultValue="flights" className="w-full">
+      <Tabs defaultValue="hotels" className="w-full">
         <TabsList className="bg-transparent flex justify-start gap-1">
-          <TabsTrigger value="flights">
-            <Image src={airplane} alt="airplane_icon" width={24} height={24} />
-            <span>Flights</span>
-          </TabsTrigger>
           <TabsTrigger value="hotels">
             <Image src={bed} alt="bed_icon" width={24} height={24} />
             <span>Stays</span>
+          </TabsTrigger>
+          <TabsTrigger value="flights">
+            <Image src={airplane} alt="airplane_icon" width={24} height={24} />
+            <span>Flights</span>
           </TabsTrigger>
         </TabsList>
         <TabsContent value="flights">
