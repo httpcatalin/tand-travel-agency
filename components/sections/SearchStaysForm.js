@@ -44,8 +44,8 @@ function SearchStaysForm({ searchParams = {} }) {
       checkIn: new Date().toString(),
       nights: 3,
       checkOut: addDays(new Date(), 1).toString(),
-      adults: 2,
-      children: 0,
+      rooms: 1,
+      guests: 1,
       promocode: "",
     };
   }
@@ -56,7 +56,6 @@ function SearchStaysForm({ searchParams = {} }) {
   }, []);
 
   const stayFormData = useSelector((state) => state.stayForm.value);
-  console.log(stayFormData);
 
   function handleSubmit(e) {
     e.preventDefault();
@@ -67,14 +66,15 @@ function SearchStaysForm({ searchParams = {} }) {
       );
       return;
     }
-    if (stayFormData.adults > 10) {
-      alert("Maximum 10 adults are allowed");
+    if (stayFormData.rooms > 5) {
+      alert("Maximum 5 rooms are allowed");
       return;
     }
-    if (stayFormData.children > 10) {
-      alert("Maximum 10 children are allowed");
+    if (stayFormData.guests > 10) {
+      alert("Maximum 10 guests are allowed");
       return;
     }
+<<<<<<< HEAD
     if (stayFormData.adults <= 0) {
       alert("Please select at least one adult");
       return;
@@ -82,9 +82,14 @@ function SearchStaysForm({ searchParams = {} }) {
     if (stayFormData.children < 0) {
       alert("Please select non negative number for children");
       return;
+=======
+    if (stayFormData.rooms <= 0) {
+      alert("Please select at least one room");
     }
-
-    localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
+    if (stayFormData.guests <= 0) {
+      alert("Please select at least one guest");
+>>>>>>> parent of d636e8b (minor changes)
+    }
 
     e.target.submit();
   }
@@ -106,7 +111,7 @@ function SearchStaysForm({ searchParams = {} }) {
     <form
       id="stayForm"
       method="get"
-      action="/hotels/123/book"
+      action="/hotels/search"
       onSubmit={handleSubmit}
     >
       <input
@@ -119,9 +124,13 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="checkOut" value={stayFormData.checkOut} />
 
-      <input type="hidden" name="rooms" value={stayFormData.adults} />
+      <input type="hidden" name="rooms" value={stayFormData.rooms} />
 
+<<<<<<< HEAD
       <input type="hidden" name="children" value={stayFormData.children} />
+=======
+      <input type="hidden" name="guests" value={stayFormData.guests} />
+>>>>>>> parent of d636e8b (minor changes)
 
       <input type="hidden" name="promocode" value={stayFormData.promocode} />
 
@@ -227,7 +236,7 @@ function SearchStaysForm({ searchParams = {} }) {
 
         <div className="relative flex h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Adults <span className={"text-red-600"}>*</span> - Children{" "}
+            Rooms <span className={"text-red-600"}>*</span> - Guests{" "}
             <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full grow">
@@ -237,15 +246,16 @@ function SearchStaysForm({ searchParams = {} }) {
                 className="h-full w-full justify-start rounded-lg"
               >
                 <Button className="font-normal justify-start" variant={"ghost"}>
-                  {`${stayFormData.adults} Adults, ${stayFormData.children} Children`}
+                  {`${stayFormData.rooms} Rooms, ${stayFormData.guests} Guests`}
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
                 <Card className="p-3 bg-primary/30 border-primary border-2 mb-3">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Adults </CardTitle>
+                    <CardTitle>Rooms (max 5)</CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
+<<<<<<< HEAD
                   <select
                    value = {stayFormData.adults}
                    onChange = {(e) => {
@@ -262,13 +272,31 @@ function SearchStaysForm({ searchParams = {} }) {
                       </option>
                     ))}
                   </select>
+=======
+                    <Input
+                      defaultValue={1}
+                      label="Rooms"
+                      type="number"
+                      min={1}
+                      max={5}
+                      name="rooms"
+                      onChange={(e) => {
+                        dispatch(
+                          setStayForm({
+                            rooms: +e.currentTarget.value,
+                          })
+                        );
+                      }}
+                    />
+>>>>>>> parent of d636e8b (minor changes)
                   </CardContent>
                 </Card>
                 <Card className="p-3 bg-primary/30 border-primary border-2">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Children </CardTitle>
+                    <CardTitle>Guests (max 10)</CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex-col flex gap-3">
+<<<<<<< HEAD
                   <select
                    value = {stayFormData.children}
                    onChange = {(e) => {
@@ -285,6 +313,23 @@ function SearchStaysForm({ searchParams = {} }) {
                       </option>
                     ))}
                   </select>
+=======
+                    <Input
+                      defaultValue={1}
+                      label="Guests"
+                      type="number"
+                      name="guests"
+                      min={1}
+                      max={10}
+                      onChange={(e) => {
+                        dispatch(
+                          setStayForm({
+                            guests: +e.currentTarget.value,
+                          })
+                        );
+                      }}
+                    />
+>>>>>>> parent of d636e8b (minor changes)
                   </CardContent>
                 </Card>
               </PopoverContent>
@@ -293,6 +338,12 @@ function SearchStaysForm({ searchParams = {} }) {
         </div>
       </div>
       <div className="flex justify-end gap-[24px]">
+        <AddPromoCode
+          defaultCode={stayFormData.promocode}
+          getPromoCode={(promo) => {
+            dispatch(setStayForm({ promocode: promo }));
+          }}
+        />
         <Button type="submit" className="gap-1">
           <Image
             width={24}
@@ -300,7 +351,7 @@ function SearchStaysForm({ searchParams = {} }) {
             src={"/icons/building.svg"}
             alt={"search_icon"}
           />
-          <span>Confirm</span>
+          <span>Show Places</span>
         </Button>
       </div>
     </form>

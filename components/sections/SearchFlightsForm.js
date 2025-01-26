@@ -105,7 +105,7 @@ function SearchFlightsForm({ searchParams = {} }) {
       <form
         id="flightform"
         method={"get"}
-        action="/hotels/123/book"
+        action="/flights/search"
         onSubmit={handleSubmit}
       >
         <input type="hidden" name="from" value={flightFormData.from} />
@@ -307,6 +307,12 @@ function SearchFlightsForm({ searchParams = {} }) {
           </div>
         </div>
         <div className="flex flex-wrap justify-end gap-[24px]">
+          <AddPromoCode
+            defaultCode={flightFormData.promocode}
+            getPromoCode={(promo) => {
+              dispatch(setFlightForm({ promocode: promo }));
+            }}
+          />
           <Button type="submit" className="gap-1">
             <Image
               width={24}
@@ -314,7 +320,7 @@ function SearchFlightsForm({ searchParams = {} }) {
               src={"/icons/paper-plane-filled.svg"}
               alt={"paper_plane_icon"}
             />
-            <span>Confirm</span>
+            <span>Show Flights</span>
           </Button>
         </div>
       </form>

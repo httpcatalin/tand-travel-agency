@@ -12,11 +12,11 @@ export function Reviews() {
           title="Reviews"
           subTitle="What people says about Golobe facilities"
         />
-        {/* <Button asChild variant={"outline"}>
+        <Button asChild variant={"outline"}>
           <Link scroll={false} href={"#"}>
             See All
           </Link>
-        </Button> */}
+        </Button>
       </div>
       <div className="flex flex-col h-[600px] gap-[16px] overflow-auto pb-5 md:flex-row md:h-auto md:gap-[30px] lg:gap-[40px] golobe-scrollbar">
         {reviews.map((review) => {
