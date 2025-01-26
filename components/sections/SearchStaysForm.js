@@ -42,8 +42,8 @@ function SearchStaysForm({ searchParams = {} }) {
     staySearchParamsObj = {
       destination: "",
       checkIn: new Date().toString(),
-      nights: 3,
       checkOut: addDays(new Date(), 1).toString(),
+      nights: 3,
       adults: 2,
       children: 0,
       promocode: "",
@@ -117,9 +117,9 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="checkIn" value={stayFormData.checkIn} />
 
-      <input type="hidden" name="checkOut" value={stayFormData.checkOut} />
+      <input type="hidden" name="nights" value={stayFormData.nights} />
 
-      <input type="hidden" name="rooms" value={stayFormData.adults} />
+      <input type="hidden" name="adults" value={stayFormData.adults} />
 
       <input type="hidden" name="children" value={stayFormData.children} />
 
@@ -199,15 +199,15 @@ function SearchStaysForm({ searchParams = {} }) {
               className={"h-full w-full rounded-[8px]"}
             /> */}
             <select
-             value = {stayFormData.nights}
-             onChange = {(e) => {
-              dispatch(
-                setStayForm({
-                  nights: +e.target.value,
-                })
-              );
-             }}
-             className="ml-5 leading-none">
+              value={stayFormData.nights}
+              onChange={(e) => {
+                dispatch(
+                  setStayForm({
+                    nights: +e.target.value,
+                  })
+                );
+              }}
+              className="ml-5 leading-none">
               {nightsOptions.map((option, index) => (
                 <option key={index} value={option} className="h-full">
                   {option}
@@ -246,22 +246,22 @@ function SearchStaysForm({ searchParams = {} }) {
                     <CardTitle>Adults </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
-                  <select
-                   value = {stayFormData.adults}
-                   onChange = {(e) => {
-                    dispatch(
-                      setStayForm({
-                        adults: +e.target.value,
-                      })
-                    );
-                   }}
-                   className="w-10 ml-5 leading-none p-1">
-                    {adultsOptions.map((option, index) => (
-                      <option key={index} value={option} className="h-full">
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      value={stayFormData.adults}
+                      onChange={(e) => {
+                        dispatch(
+                          setStayForm({
+                            adults: +e.target.value,
+                          })
+                        );
+                      }}
+                      className="w-10 ml-5 leading-none p-1">
+                      {adultsOptions.map((option, index) => (
+                        <option key={index} value={option} className="h-full">
+                          {option}
+                        </option>
+                      ))}
+                    </select>
                   </CardContent>
                 </Card>
                 <Card className="p-3 bg-primary/30 border-primary border-2">
@@ -269,22 +269,22 @@ function SearchStaysForm({ searchParams = {} }) {
                     <CardTitle>Children </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex-col flex gap-3">
-                  <select
-                   value = {stayFormData.children}
-                   onChange = {(e) => {
-                    dispatch(
-                      setStayForm({
-                        children: +e.target.value,
-                      })
-                    );
-                   }}
-                   className="w-10 ml-5 leading-none p-1">
-                    {childrenOptions.map((option, index) => (
-                      <option key={index} value={option} className="h-full">
-                        {option}
-                      </option>
-                    ))}
-                  </select>
+                    <select
+                      value={stayFormData.children}
+                      onChange={(e) => {
+                        dispatch(
+                          setStayForm({
+                            children: +e.target.value,
+                          })
+                        );
+                      }}
+                      className="w-10 ml-5 leading-none p-1">
+                      {childrenOptions.map((option, index) => (
+                        <option key={index} value={option} className="h-full">
+                          {option}
+                        </option>
+                      ))}
+                    </select>
                   </CardContent>
                 </Card>
               </PopoverContent>

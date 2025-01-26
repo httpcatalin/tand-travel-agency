@@ -5,6 +5,7 @@ const defaultValue = {
   destination: "",
   checkIn: new Date(today.getFullYear(), today.getMonth(), today.getDay()).toString(),
   checkOut: addDays(new Date(), 1).toString(),
+  nights: 3,
   adults: 2,
   children: 0,
   promocode: "",

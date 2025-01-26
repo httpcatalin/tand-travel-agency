@@ -27,7 +27,7 @@ export default function BookingPage() {
 
       if (!response.ok) throw new Error('Failed to submit');
       setSubmitStatus('success');
-      setTimeout(() => router.push('/'), 2000);
+      router.push('/')
     } catch (error) {
       setSubmitStatus('error');
     } finally {

@@ -12,16 +12,31 @@ import lineRight from "@/public/icons/line-right.svg";
 
 export function HotelDetailsCard() {
   const [stayData, setStayData] = useState(null);
+  const [flightData, setFlightData] = useState(null);
 
   useEffect(() => {
-    const data = localStorage.getItem("stayFormData");
-    if (data) {
-      const parsedData = JSON.parse(data);
-      const updatedCheckOut = addDays(new Date(parsedData.checkIn), parsedData.nights).toString();
-      setStayData({
-        ...parsedData,
-        checkOut: updatedCheckOut,
-      });
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const checkIn = params.get("checkIn");
+      const nights = params.get("nights");
+      const destination = params.get("destination");
+      const adults = params.get("adults");
+      const children = params.get("children");
+
+
+      if (checkIn && nights && destination && adults && children) {
+        const updatedCheckOut = addDays(new Date(checkIn), Number(nights)).toString();
+        const newStayData = {
+          destination: destination,
+          checkIn: checkIn,
+          checkOut: updatedCheckOut,
+          nights: parseInt(nights),
+          adults: parseInt(adults),
+          children: parseInt(children)
+        };
+        console.log("New stayData:", newStayData);
+        setStayData(newStayData);
+      }
     }
   }, []);
 
