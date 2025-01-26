@@ -36,6 +36,10 @@ function SearchFlightsForm({ searchParams = {} }) {
   };
   const dispatch = useDispatch();
 
+
+  const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  const childrenOptions = Array.from({ length: 5 }, (_, i) => (i).toString());
+
   let searchParamsObj = {};
   if (Object.keys(searchParams).length > 0) {
     for (const [key, value] of Object.entries(searchParams)) {
@@ -64,16 +68,16 @@ function SearchFlightsForm({ searchParams = {} }) {
       );
       return;
     }
-    if (flightFormData.passenger.adult <= 0) {
+    if (flightFormData.adult <= 0) {
       alert("Please select at least one passenger");
       return;
     }
-    if (flightFormData.passenger.adult > 10) {
+    if (flightFormData.adult > 10) {
       alert("Maximum number for adults is 10");
       return;
     }
-    if (flightFormData.passenger.children > 5) {
-      alert("Maximum number for children is 5");
+    if (flightFormData.children > 4) {
+      alert("Maximum number for children is 4");
       return;
     }
 
@@ -97,7 +101,7 @@ function SearchFlightsForm({ searchParams = {} }) {
   }
 
   function totalPassenger() {
-    return Object.values(flightFormData.passenger).reduce((a, b) => +a + +b, 0);
+    return flightFormData.adult + flightFormData.children;
   }
 
   return (
@@ -132,9 +136,15 @@ function SearchFlightsForm({ searchParams = {} }) {
         />
         <input
           type="hidden"
-          value={JSON.stringify(flightFormData.passenger)}
+          value={flightFormData.adult}
           form="flightform"
-          name="passenger"
+          name="adult"
+        />
+        <input
+          type="hidden"
+          value={flightFormData.children}
+          form="flightform"
+          name="children"
         />
         <input
           type="hidden"
@@ -237,8 +247,8 @@ function SearchFlightsForm({ searchParams = {} }) {
                 className="h-full w-full justify-start rounded-lg"
               >
                 <Button className="font-normal" variant={"ghost"}>
-                  {`${totalPassenger(flightFormData.passenger)} ${
-                    totalPassenger(flightFormData.passenger) > 1
+                  {`${totalPassenger()} ${
+                    totalPassenger() > 1
                       ? "people"
                       : "person"
                   }, ${classPlaceholders[flightFormData.class]}`}
@@ -259,46 +269,44 @@ function SearchFlightsForm({ searchParams = {} }) {
                   <CardHeader className="p-0 mb-4">
                     <CardTitle>Passenger</CardTitle>
                   </CardHeader>
-                  <CardContent className="p-0 flex-col flex gap-3">
+                  <CardContent className="p-0 flex-col flex gap-3 justify-center">
                     <Label>
                       Adult (max 10):
-                      <Input
-                        defaultValue={+flightFormData.passenger.adult}
-                        label="Adult"
-                        type="number"
-                        min={1}
-                        max={10}
+                      <select
+                        value={+flightFormData.adult}
                         onChange={(e) => {
                           dispatch(
                             setFlightForm({
-                              passenger: {
-                                ...flightFormData.passenger,
-                                adult: +e.currentTarget.value,
-                              },
+                              adult: +e.currentTarget.value,
                             })
                           );
                         }}
-                      />
+                        className="p-2 rounded-sm leading-none block mt-1">
+                        {adultsOptions.map((option, index) => (
+                          <option key={index} value={option} className="h-full">
+                            {option}
+                          </option>
+                        ))}
+                      </select>
                     </Label>
                     <Label>
-                      Children (max 5):
-                      <Input
-                        defaultValue={flightFormData.passenger.children}
-                        label="Children"
-                        type="number"
-                        min={0}
-                        max={5}
+                      Children (max 4):
+                      <select
+                        value={+flightFormData.children}
                         onChange={(e) => {
                           dispatch(
                             setFlightForm({
-                              passenger: {
-                                ...flightFormData.passenger,
-                                children: +e.currentTarget.value,
-                              },
+                              children: +e.target.value,
                             })
                           );
                         }}
-                      />
+                        className="p-2 rounded-sm leading-none block mt-1">
+                        {childrenOptions.map((option, index) => (
+                          <option key={index} value={option} className="h-full">
+                            {option}
+                          </option>
+                        ))}
+                      </select>
                     </Label>
                   </CardContent>
                 </Card>

@@ -84,8 +84,6 @@ function SearchStaysForm({ searchParams = {} }) {
       return;
     }
 
-    localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
-
     e.target.submit();
   }
 
