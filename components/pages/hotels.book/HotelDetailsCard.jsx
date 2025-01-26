@@ -40,7 +40,7 @@ export function HotelDetailsCard() {
         setStayData(newStayData);
       }
 
-
+      // test
       //flightData params
       const from = params.get("from");
       const to = params.get("to");
