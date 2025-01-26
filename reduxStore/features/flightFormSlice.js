@@ -10,10 +10,8 @@ export const defaultFlightFormValue = {
   trip: "oneway",
   departDate: d.toString(),
   returnDate: "",
-  passenger: {
-    adult: 1,
-    children: 0,
-  },
+  adult: 1,
+  children: 0,
   class: "economy",
   promocode: "",
   firstAvailableFlightDate: d.toString(),
