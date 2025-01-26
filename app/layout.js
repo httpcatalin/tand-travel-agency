@@ -11,6 +11,7 @@ import dynamic from "next/dynamic";
 import openGraph from "./opengraph-image.jpg";
 import SetCookies from "./_setCookies";
 
+
 const monse = Montserrat({
   subsets: ["latin"],
   variable: "--font-monserrat",
@@ -32,27 +33,24 @@ export default async function RootLayout({ children }) {
     }
   }
 
-  const Notification = dynamic(
-    () => import("@/app/_notification").then((mod) => mod.Notification),
-    {
-      ssr: false,
-    }
-  );
+
 
   return (
     <html lang="en" className={`${tradegothic.variable} ${monse.variable}`}>
       <body className={monse.className}>
-        <StoreProvider>
-          <SessionProvider>
-            <div className="max-w-[1440px] mx-auto">
-              <Notification />
-              {children}
-            </div>
-          </SessionProvider>
-        </StoreProvider>
-        <NextTopLoader showSpinner={false} color="hsl(159, 44%, 69%)" />
-        <Toaster className="bg-secondary" />
-        <SetCookies />
+       
+          <StoreProvider>
+            <SessionProvider>
+              <div className="max-w-[1440px] mx-auto">
+
+                {children}
+              </div>
+            </SessionProvider>
+          </StoreProvider>
+          <NextTopLoader showSpinner={false} color="hsl(159, 44%, 69%)" />
+          <Toaster className="bg-secondary" />
+          <SetCookies />
+        
       </body>
     </html>
   );

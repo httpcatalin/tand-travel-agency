@@ -4,32 +4,39 @@ import { initReactI18next } from 'react-i18next';
 const resources = {
     en: {
         translation: {
-            // English translations
-            "welcome": "Welcome",
-            // Add more translations as needed
-        },
+            "home": {
+                "helpingOthers": "Helping Others",
+                "liveAndTravel": "Live & Travel",
+                "specialOffers": "Special offers to suit your plan"
+            }
+        }
     },
     ro: {
         translation: {
-            // Romanian translations
-            "welcome": "Bine ai venit",
-            // Add more translations as needed
-        },
+
+            "home": {
+                "helpingOthers": "Ajutăm Pe Alții",
+                "liveAndTravel": "Să Trăiască și Să Călătorească",
+                "specialOffers": "Oferte speciale pentru planul tău"
+            }
+        }
     },
     ru: {
         translation: {
-            // Russian translations
-            "welcome": "Добро пожаловать",
-            // Add more translations as needed
-        },
-    },
+            "home": {
+                "helpingOthers": "Помогаем Другим",
+                "liveAndTravel": "Жить и Путешествовать",
+                "specialOffers": "Специальные предложения для вашего плана"
+            }
+        }
+    }
 };
 
 i18n
     .use(initReactI18next)
     .init({
         resources,
-        lng: 'en', // default language
+        lng: 'en',
         interpolation: {
             escapeValue: false,
         },
