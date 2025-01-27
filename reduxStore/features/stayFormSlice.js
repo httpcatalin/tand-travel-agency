@@ -8,7 +8,7 @@ const defaultValue = {
   nights: 3,
   adults: 2,
   children: 0,
-  promocode: "",
+  price: 0,
   filters: {
     priceRange: [50, 1200],
     rate: [],

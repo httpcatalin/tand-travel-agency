@@ -19,22 +19,31 @@ export function HotelDetailsCard() {
       const params = new URLSearchParams(window.location.search);
       
       // stayData params
-      const checkIn = params.get("checkIn");
-      const nights = params.get("nights");
       const destination = params.get("destination");
+      const checkIn = params.get("checkIn");
+      const checkOut = params.get("checkOut");
+      const nights = params.get("nights");
       const adults1 = params.get("adults");
       const children1 = params.get("children");
+      let price = "";
 
 
       if (checkIn && nights && destination && adults1 && children1) {
-        const updatedCheckOut = addDays(new Date(checkIn), Number(nights)).toString();
+        let updatedCheckOut = "";
+        if ( checkOut ){
+          updatedCheckOut = checkOut;
+          price = params.get("price");
+        } else {
+          updatedCheckOut = addDays(new Date(checkIn), Number(nights)).toString();
+        }
         const newStayData = {
           destination: destination,
           checkIn: checkIn,
           checkOut: updatedCheckOut,
           nights: parseInt(nights),
           adults: parseInt(adults1),
-          children: parseInt(children1)
+          children: parseInt(children1),
+          price: parseInt(price),
         };
         console.log("New stayData:", newStayData);
         setStayData(newStayData);
@@ -83,10 +92,15 @@ export function HotelDetailsCard() {
     <div>
     {stayData != null && (
       <div className="mb-[20px] shadow-lg rounded-[12px] bg-white px-[24px] py-[32px] shadow-small lg:mb-[30px] xl:mb-[40px]">
-        <div className="mb-[24px] gap-6 flex items-baseline justify-between font-bold">
+        <div className="mb-[24px] gap-6 flex-col items-baseline justify-between font-bold">
           <h3 className="font-tradeGothic text-base sm:text-lg md:text-xl lg:text-[1.5rem]">
             {currentLocation} - {stayData?.destination}
           </h3>
+          { !isNaN(stayData?.price)  && (
+            <h3 className="font-tradeGothic text-base sm:text-lg md:text-xl lg:text-[1.5rem]">
+            Price: {stayData?.price}$
+          </h3>
+          )}
         </div>
   
         <div className="mb-[40px] grid justify-between gap-[20px] md:flex">
