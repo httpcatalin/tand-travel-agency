@@ -46,7 +46,7 @@ function SearchStaysForm({ searchParams = {} }) {
       nights: 3,
       adults: 2,
       children: 0,
-      promocode: "",
+      price: 0,
     };
   }
 
@@ -83,6 +83,8 @@ function SearchStaysForm({ searchParams = {} }) {
       alert("Please select non negative number for children");
       return;
     }
+
+    localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
 
     e.target.submit();
   }
@@ -121,7 +123,7 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="children" value={stayFormData.children} />
 
-      <input type="hidden" name="promocode" value={stayFormData.promocode} />
+      <input type="hidden" name="price" value={stayFormData.price} />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_repeat(3,_1fr)]">
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
