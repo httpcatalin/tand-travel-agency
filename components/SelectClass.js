@@ -13,16 +13,11 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 
-export function SelectClass() {
-  const classPlaceholders = {
-    economy: "Economy",
-    premium_economy: "Premium Economy",
-    business: "Business",
-    first: "First class",
-  };
+export function SelectClass({ lang = "en" }) {
+  const t = translations[lang]?.flights.form || translations.en.flights.form;
   const dispatch = useDispatch();
-
   const flightClass = useSelector((state) => state.flightForm.value.class);
+
   return (
     <SelectShadcn
       onValueChange={(value) => {
@@ -34,15 +29,17 @@ export function SelectClass() {
         <SelectValue
           className="h-full"
           defaultValue={flightClass}
-          placeholder={classPlaceholders[flightClass]}
+          placeholder={t.class[flightClass]}
         />
       </SelectTrigger>
       <SelectContent className={"bg-primary"}>
         <SelectGroup>
-          <SelectItem value="economy">Economy</SelectItem>
-          <SelectItem value="premium_economy">Premium Economy</SelectItem>
-          <SelectItem value="business">Business</SelectItem>
-          <SelectItem value="first">First class</SelectItem>
+          <SelectItem value="economy">{t.class.economy}</SelectItem>
+          <SelectItem value="premium_economy">
+            {t.class.premium_economy}
+          </SelectItem>
+          <SelectItem value="business">{t.class.business}</SelectItem>
+          <SelectItem value="first">{t.class.first}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </SelectShadcn>

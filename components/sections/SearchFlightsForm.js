@@ -7,7 +7,11 @@ import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { Button } from "@/components/ui/button";
 import { DatePickerWithRange } from "@/components/ui/DatePickerWithRange";
 import { SearchAirportDropdown } from "@/components/SearchAirportDropdown";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { SelectTrip } from "@/components/SelectTrip";
@@ -16,15 +20,26 @@ import airports from "@/data/airports.json";
 import swap from "@/public/icons/swap.svg";
 import { translations } from "@/lib/translations";
 
-function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
+function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
   const t = translations[lang]?.flights.form || translations.en.flights.form;
 
   const getClassName = (classType) => {
-    return t.class[classType] || classType;
+    if (!classType) return "";
+    // Changed to access string value directly
+    const classNames = {
+      economy: t.class?.economy || "Economy",
+      premium_economy: t.class?.premium_economy || "Premium Economy",
+      business: t.class?.business || "Business",
+      first: t.class?.first || "First Class",
+    };
+    return classNames[classType] || classType;
   };
+
   const dispatch = useDispatch();
 
-  const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
+  const adultsOptions = Array.from({ length: 10 }, (_, i) =>
+    (i + 1).toString()
+  );
   const childrenOptions = Array.from({ length: 5 }, (_, i) => i.toString());
 
   const flightFormData = useSelector((state) => state.flightForm.value);
@@ -34,7 +49,7 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
       const searchParamsObj = Object.fromEntries(
         Object.entries(searchParams).map(([key, value]) => [
           key,
-          ['passenger', 'filters'].includes(key) ? JSON.parse(value) : value
+          ["passenger", "filters"].includes(key) ? JSON.parse(value) : value,
         ])
       );
       dispatch(setFlightForm(searchParamsObj));
@@ -67,14 +82,15 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
     const optionals = ["promocode"];
     for (const [key, value] of Object.entries(obj)) {
       if (optionals.includes(key)) continue;
-      if (key === "returnDate" && value === "" && obj.trip === "oneway") continue;
+      if (key === "returnDate" && value === "" && obj.trip === "oneway")
+        continue;
       if (value === "") return true;
     }
     return false;
   };
 
   const totalPassenger = () => flightFormData.adult + flightFormData.children;
-
+  console.log(t);
   return (
     <form
       id="flightform"
@@ -82,20 +98,38 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
       action="/hotels/123/book"
       onSubmit={handleSubmit}
     >
-
       <input type="hidden" name="from" value={flightFormData.from} />
       <input type="hidden" name="to" value={flightFormData.to} />
-      <input type="hidden" name="departureAirportCode" value={flightFormData.departureAirportCode} />
-      <input type="hidden" name="arrivalAirportCode" value={flightFormData.arrivalAirportCode} />
-      <input type="hidden" name="departDate" value={flightFormData.departDate} />
-      <input type="hidden" name="returnDate" value={flightFormData.returnDate} />
+      <input
+        type="hidden"
+        name="departureAirportCode"
+        value={flightFormData.departureAirportCode}
+      />
+      <input
+        type="hidden"
+        name="arrivalAirportCode"
+        value={flightFormData.arrivalAirportCode}
+      />
+      <input
+        type="hidden"
+        name="departDate"
+        value={flightFormData.departDate}
+      />
+      <input
+        type="hidden"
+        name="returnDate"
+        value={flightFormData.returnDate}
+      />
       <input type="hidden" name="adult" value={flightFormData.adult} />
       <input type="hidden" name="children" value={flightFormData.children} />
       <input type="hidden" name="class" value={flightFormData.class} />
-      <input type="hidden" name="filters" value={JSON.stringify(flightFormData.filters)} />
+      <input
+        type="hidden"
+        name="filters"
+        value={JSON.stringify(flightFormData.filters)}
+      />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_1fr_repeat(2,_2fr)]">
-
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
             {t.from} <span className="text-red-600">{t.required}</span> - {t.to}{" "}
@@ -112,13 +146,15 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
           <button
             type="button"
             onClick={() => {
-              dispatch(setFlightForm({
-                ...flightFormData,
-                from: flightFormData.to,
-                to: flightFormData.from,
-                departureAirportCode: flightFormData.arrivalAirportCode,
-                arrivalAirportCode: flightFormData.departureAirportCode,
-              }));
+              dispatch(
+                setFlightForm({
+                  ...flightFormData,
+                  from: flightFormData.to,
+                  to: flightFormData.from,
+                  departureAirportCode: flightFormData.arrivalAirportCode,
+                  arrivalAirportCode: flightFormData.departureAirportCode,
+                })
+              );
             }}
             aria-label={t.swap}
             className="flex h-full w-[10%] items-center justify-center rounded-lg transition-all hover:bg-slate-400/20"
@@ -140,7 +176,6 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
           />
         </div>
 
-
         <div className="relative rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
             {t.trip} <span className="text-red-600">{t.required}</span>
@@ -148,10 +183,10 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
           <SelectTrip lang={lang} />
         </div>
 
-
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            {t.depart} <span className="text-red-600">{t.required}</span> - {t.return}{" "}
+            {t.depart} <span className="text-red-600">{t.required}</span> -{" "}
+            {t.return}{" "}
             {flightFormData.trip === "roundtrip" && (
               <span className="text-red-600">{t.required}</span>
             )}
@@ -163,17 +198,21 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
           />
         </div>
 
-
         <div className="relative flex h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            {t.passenger} <span className="text-red-600">{t.required}</span> - {t.class}{" "}
-            <span className="text-red-600">{t.required}</span>
+            {t.passenger} <span className="text-red-600">{t.required}</span> -{" "}
+            {t.class} <span className="text-red-600">{t.required}</span>
           </span>
           <Popover>
-            <PopoverTrigger asChild className="h-full w-full justify-start rounded-lg">
+            <PopoverTrigger
+              asChild
+              className="h-full w-full justify-start rounded-lg"
+            >
               <Button variant="ghost" className="font-normal">
                 {`${totalPassenger()} ${
-                  totalPassenger() > 1 ? t.passengers.people : t.passengers.person
+                  totalPassenger() > 1
+                    ? t.passengers.people
+                    : t.passengers.person
                 }, ${getClassName(flightFormData.class)}`}
               </Button>
             </PopoverTrigger>
@@ -197,11 +236,15 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
                     {t.passengers.adult}
                     <select
                       value={flightFormData.adult}
-                      onChange={(e) => dispatch(setFlightForm({ adult: +e.target.value }))}
+                      onChange={(e) =>
+                        dispatch(setFlightForm({ adult: +e.target.value }))
+                      }
                       className="p-2 mt-1 block rounded-sm"
                     >
                       {adultsOptions.map((option, index) => (
-                        <option key={index} value={option}>{option}</option>
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
                       ))}
                     </select>
                   </Label>
@@ -209,11 +252,15 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
                     {t.passengers.children}
                     <select
                       value={flightFormData.children}
-                      onChange={(e) => dispatch(setFlightForm({ children: +e.target.value }))}
+                      onChange={(e) =>
+                        dispatch(setFlightForm({ children: +e.target.value }))
+                      }
                       className="p-2 mt-1 block rounded-sm"
                     >
                       {childrenOptions.map((option, index) => (
-                        <option key={index} value={option}>{option}</option>
+                        <option key={index} value={option}>
+                          {option}
+                        </option>
                       ))}
                     </select>
                   </Label>

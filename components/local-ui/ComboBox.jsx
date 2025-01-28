@@ -14,8 +14,9 @@ import { useSelector, useDispatch } from "react-redux";
 import { setStayForm } from "@/reduxStore/features/stayFormSlice";
 
 import { cn } from "@/lib/utils";
-
-export function Combobox({ className, searchResult, name }) {
+import { translations } from "@/lib/translations";
+export function Combobox({ className, searchResult, name, lang = "en" }) {
+  const t = translations[lang]?.stays.form || translations.en.stays.form;
   const dispatch = useDispatch();
 
   const [open, setOpen] = useState(false);
@@ -33,44 +34,44 @@ export function Combobox({ className, searchResult, name }) {
   }
 
   return (
-    <Popover open={ open } onOpenChange={ setOpen }>
-      <PopoverTrigger className={ cn("text-left", className) } asChild>
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger className={cn("text-left", className)} asChild>
         <Button
           variant="ghost"
           className="justify-start line-clamp-1 font-normal"
         >
-          { value === "" ? "Where are you going?" : value }
+          {value === "" ? t.destinationPlaceholder : value}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="center">
         <Input
           className="w-full mb-3"
-          placeholder="Search..."
-          onChange={ handleChange }
+          placeholder={t.searchPlaceholder}
+          onChange={handleChange}
         />
         <div className="h-80 overflow-auto">
           <div>
-            { Object.keys(filter).length < 1 ? (
-              <div className="p-4 text-center text-sm">No results found</div>
+            {Object.keys(filter).length < 1 ? (
+              <div className="p-4 text-center text-sm">{t.noResultsFound}</div>
             ) : (
               filter.map((obj) => (
                 <div
-                  key={ obj.label }
-                  onClick={ () => {
+                  key={obj.label}
+                  onClick={() => {
                     dispatch(
                       setStayForm({
                         destination: obj.label === value ? "" : obj.label,
                       })
                     );
                     setOpen(false);
-                  } }
-                  obj={ obj.label }
+                  }}
+                  obj={obj.label}
                   className="flex cursor-pointer items-center justify-between p-4 hover:bg-muted"
                 >
-                  <div className="text-sm">{ obj.label }</div>
+                  <div className="text-sm">{obj.label}</div>
                 </div>
               ))
-            ) }
+            )}
           </div>
         </div>
       </PopoverContent>

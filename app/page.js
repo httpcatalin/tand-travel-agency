@@ -7,14 +7,15 @@ import { Reviews } from "@/components/pages/home/sections/Reviews";
 import { Footer } from "@/components/sections/Footer";
 import Image from "next/image";
 import { translations } from "@/lib/translations";
-import { headers } from 'next/headers';
+import { headers } from "next/headers";
 
 export default async function HomePage({ searchParams }) {
   const headersList = await headers();
-  const acceptLanguage = await headersList.get('accept-language') || '';
-  const preferredLanguage = acceptLanguage.split(',')[0].split('-')[0];
-  const lang = await searchParams?.lang ||
-    (['en', 'ro', 'ru'].includes(preferredLanguage) ? preferredLanguage : 'en');
+  const acceptLanguage = (await headersList.get("accept-language")) || "";
+  const preferredLanguage = acceptLanguage.split(",")[0].split("-")[0];
+  const lang =
+    searchParams?.lang ||
+    (["en", "ro", "ru"].includes(preferredLanguage) ? preferredLanguage : "en");
 
   const t = translations[lang] || translations.en;
 
