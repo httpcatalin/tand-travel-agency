@@ -12,7 +12,7 @@ import {
 
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
-
+import { translations } from "@/lib/translations";
 export function SelectClass({ lang = "en" }) {
   const t = translations[lang]?.flights.form || translations.en.flights.form;
   const dispatch = useDispatch();
@@ -34,12 +34,12 @@ export function SelectClass({ lang = "en" }) {
       </SelectTrigger>
       <SelectContent className={"bg-primary"}>
         <SelectGroup>
-          <SelectItem value="economy">{t.class.economy}</SelectItem>
+          <SelectItem value="economy">{t.classLabels.economy}</SelectItem>
           <SelectItem value="premium_economy">
-            {t.class.premium_economy}
+            {t.classLabels.premium_economy}
           </SelectItem>
-          <SelectItem value="business">{t.class.business}</SelectItem>
-          <SelectItem value="first">{t.class.first}</SelectItem>
+          <SelectItem value="business">{t.classLabels.business}</SelectItem>
+          <SelectItem value="first">{t.classLabels.first}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </SelectShadcn>

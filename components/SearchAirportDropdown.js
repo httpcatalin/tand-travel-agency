@@ -11,10 +11,17 @@ import {
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
-
-export function SearchAirportDropdown({ className, airports, name, codeName }) {
+import { translations } from "@/lib/translations";
+export function SearchAirportDropdown({
+  lang = "en",
+  className,
+  airports,
+  name,
+  codeName,
+}) {
   const dispatch = useDispatch();
   const flightFormData = useSelector((state) => state.flightForm.value);
+  const t = translations[lang]?.flights.form || translations.en.flights.form;
 
   const oppositeCodeName = {
     arrivalAirportCode: "departureAirportCode",
@@ -42,9 +49,7 @@ export function SearchAirportDropdown({ className, airports, name, codeName }) {
           variant="ghost"
           className="justify-start line-clamp-1 font-normal"
         >
-          {flightFormData[name] === ""
-            ? "Select airport"
-            : flightFormData[name]}
+          {flightFormData[name] === "" ? t.select : flightFormData[name]}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="center">

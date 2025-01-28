@@ -25,14 +25,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
 
   const getClassName = (classType) => {
     if (!classType) return "";
-    // Changed to access string value directly
-    const classNames = {
-      economy: t.class?.economy || "Economy",
-      premium_economy: t.class?.premium_economy || "Premium Economy",
-      business: t.class?.business || "Business",
-      first: t.class?.first || "First Class",
-    };
-    return classNames[classType] || classType;
+    return t.class?.[classType] || classType;
   };
 
   const dispatch = useDispatch();
@@ -137,6 +130,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           </span>
 
           <SearchAirportDropdown
+            lang={lang}
             name="from"
             codeName="departureAirportCode"
             airports={airports}
@@ -213,7 +207,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
                   totalPassenger() > 1
                     ? t.passengers.people
                     : t.passengers.person
-                }, ${getClassName(flightFormData.class)}`}
+                }, ${t.classLabels[getClassName(flightFormData.class)]}`}
               </Button>
             </PopoverTrigger>
             <PopoverContent>
