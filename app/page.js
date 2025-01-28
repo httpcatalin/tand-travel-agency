@@ -52,17 +52,10 @@ export default async function HomePage() {
       </header>
 
       <main className="mx-auto w-[90%]">
-<<<<<<< Updated upstream
         {/* <PopularTrips /> */}
         {/* <FindFlightAndHotelcards /> */}
         <BookHotels />
         <Reviews />
-=======
-        <BookHotels lang={lang} />
-        {/* <PopularTrips lang={lang} /> */}
-        {/* <FindFlightAndHotelcards lang={lang} /> */}
-        <Reviews lang={lang} />
->>>>>>> Stashed changes
       </main>
       <Footer />
     </>
