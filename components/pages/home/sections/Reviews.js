@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ReviewsCard } from "@/components/pages/home/ui/ReviewsCard";
 import { reviews } from "@/data/reviews";
+import { translations } from "@/lib/translations";
 
-export function Reviews() {
+export function Reviews({ lang = 'en' }) {
+  const t = translations[lang]?.reviews || translations.en.reviews;
   return (
     <section className="mx-auto mb-[80px]">
       <div className="mb-[20px] flex items-center justify-between max-md:flex-col max-md:gap-[16px] md:mb-[40px]">
         <SectionTitle
-          title="Reviews"
-          subTitle="What people says about Golobe facilities"
+          title={t.title}
+          subTitle={t.subtitle}
         />
         {/* <Button asChild variant={"outline"}>
           <Link scroll={false} href={"#"}>
@@ -26,7 +28,6 @@ export function Reviews() {
           return (
             <ReviewsCard
               key={id}
-              comment={comment}
               describedComment={describedComment}
               rate={rate}
               reviewer={reviewer}

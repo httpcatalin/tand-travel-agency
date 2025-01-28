@@ -56,8 +56,8 @@ export default async function HomePage({ searchParams }) {
 
       <main className="mx-auto w-[90%]">
         <BookHotels lang={lang} />
-        <PopularTrips lang={lang} />
-        <FindFlightAndHotelcards lang={lang} />
+        {/* <PopularTrips lang={lang} /> */}
+        {/* <FindFlightAndHotelcards lang={lang} /> */}
         <Reviews lang={lang} />
       </main>
       <Footer lang={lang} />
