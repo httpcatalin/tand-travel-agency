@@ -26,8 +26,10 @@ import { setStayForm } from "@/reduxStore/features/stayFormSlice";
 
 import { addDays } from "date-fns";
 
-function SearchStaysForm({ searchParams = {} }) {
-  const dispatch = useDispatch();
+import { translations } from "@/lib/translations";
+import dispatch from "react-redux";
+function SearchStaysForm({ searchParams = {}, lang = "en" }) {
+  const t = translations[lang]?.stays.form || translations.en.stays.form;
 
   const nightsOptions = Array.from({ length: 14 }, (_, i) => (i + 1).toString());
   const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());

@@ -18,7 +18,10 @@ import { translations } from "@/lib/translations";
 
 function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
   const t = translations[lang]?.flights.form || translations.en.flights.form;
-  console.log(translations.ro.flights);
+
+  const getClassName = (classType) => {
+    return t.class[classType] || classType;
+  };
   const dispatch = useDispatch();
 
   const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
@@ -57,7 +60,6 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
       alert(t.validation.maxChildren);
       return;
     }
-
     e.target.submit();
   };
 
@@ -170,8 +172,9 @@ function SearchFlightsForm({ searchParams = {}, lang = 'en' }) {
           <Popover>
             <PopoverTrigger asChild className="h-full w-full justify-start rounded-lg">
               <Button variant="ghost" className="font-normal">
-                {`${totalPassenger()} ${totalPassenger() > 1 ? t.passengers.people : t.passengers.person
-                  }, ${t.class[flightFormData.class]}`}
+                {`${totalPassenger()} ${
+                  totalPassenger() > 1 ? t.passengers.people : t.passengers.person
+                }, ${getClassName(flightFormData.class)}`}
               </Button>
             </PopoverTrigger>
             <PopoverContent>
