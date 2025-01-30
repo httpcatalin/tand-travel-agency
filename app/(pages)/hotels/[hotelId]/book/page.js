@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { BreadcrumbUI } from "@/components/local-ui/breadcrumb";
@@ -16,18 +16,42 @@ export default function BookingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
 
+  const [bookingData, setBookingData] = useState({
+    stayData: null,
+    flightData: null
+  });
+
+  useEffect(() => {
+    const stayData = localStorage.getItem('stayBookingData');
+    const flightData = localStorage.getItem('flightBookingData');
+
+    setBookingData({
+      stayData: stayData ? JSON.parse(stayData) : null,
+      flightData: flightData ? JSON.parse(flightData) : null
+    });
+  }, []);
+
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
       const response = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({
+          userData: data,
+          stayData: bookingData.stayData,
+          flightData: bookingData.flightData
+        }),
       });
 
       if (!response.ok) throw new Error('Failed to submit');
+
+      // Clear localStorage after successful booking
+      localStorage.removeItem('stayBookingData');
+      localStorage.removeItem('flightBookingData');
+
       setSubmitStatus('success');
-      router.push('/')
+      router.push('/');
     } catch (error) {
       setSubmitStatus('error');
     } finally {

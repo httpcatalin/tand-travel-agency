@@ -100,7 +100,7 @@ export function SubscribeNewsletter({ isSubscribed, lang = "en" }) {
                   autoComplete="off"
                   name="subscribe-email"
                   type="email"
-                  placeholder="Your email address"
+                  placeholder={t.placeholder}
                   onChange={handleChange}
                   className={"grow"}
                 />
@@ -109,8 +109,8 @@ export function SubscribeNewsletter({ isSubscribed, lang = "en" }) {
                   formId={"subscribe"}
                   variant={"secondary"}
                   customTitle={{
-                    default: "Subscribe",
-                    onSubmitting: "Subscibing...",
+                    default: t.button,
+                    onSubmitting: t.submitting,
                   }}
                   className={
                     "h-full grow-0 disabled:bg-[#737373] disabled:text-[#ffffff]"

@@ -1,40 +1,91 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '../../../lib/dbConnect';
 import User from '../../../models/UserModel';
+import StayData from '../../../models/stayDataModel';
+import FlightData from '../../../models/flightDataModel';
 
 export async function GET() {
     try {
         await dbConnect();
-        const users = await User.find({});
+        const stayData = await StayData.find({}).sort({ createdAt: -1 });
+        let users = [];
+        for (let i = 0; i < stayData.length; i++) {
+            let user = await User.findById(stayData[i].user);
+            users.push(user);
+        }
         return NextResponse.json(users);
     } catch (error) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-export async function POST(req) {
+export async function POST(request) {
     try {
         await dbConnect();
-        const userData = await req.json();
-        console.log(userData);
-        if (!userData.fullName || !userData.email || !userData.phone) {
-            return NextResponse.json(
-                { error: 'Missing required fields' },
-                { status: 400 }
+
+        const { userData, stayData, flightData } = await request.json();
+
+        // Create or find user
+        const user = await User.findOneAndUpdate(
+            { email: userData.email },
+            {
+                fullName: userData.fullName,
+                phone: userData.phone,
+                email: userData.email
+            },
+            { upsert: true, new: true }
+        );
+
+        let bookingResponse = {
+            userId: user._id,
+            stayBooking: null,
+            flightBooking: null
+        };
+
+        // Handle stay booking
+        if (stayData) {
+            const stay = await StayData.create({
+                user: user._id,
+                ...stayData,
+                checkIn: new Date(stayData.checkIn),
+                checkOut: new Date(stayData.checkOut)
+            });
+
+            await User.findByIdAndUpdate(
+                user._id,
+                { $push: { stayBookings: stay._id } }
             );
+
+            bookingResponse.stayBooking = stay._id;
         }
 
-        const user = await User.create({
-            fullName: userData.fullName,
-            email: userData.email,
-            phone: userData.phone
-        });
+        // Handle flight booking
+        if (flightData) {
+            const flight = await FlightData.create({
+                user: user._id,
+                ...flightData,
+                departDate: new Date(flightData.departDate),
+                returnDate: flightData.returnDate ? new Date(flightData.returnDate) : null
+            });
 
-        return NextResponse.json(user, { status: 201 });
+            await User.findByIdAndUpdate(
+                user._id,
+                { $push: { flightBookings: flight._id } }
+            );
+
+            bookingResponse.flightBooking = flight._id;
+        }
+
+        return Response.json({
+            success: true,
+            message: 'Booking created successfully',
+            data: bookingResponse
+        }, { status: 201 });
+
     } catch (error) {
-        console.error('Server error:', error);
-        return NextResponse.json(
-            { error: 'Server error occurred' },
-            { status: 500 }
-        );
+        console.error('Booking error:', error);
+        return Response.json({
+            success: false,
+            message: error.message || 'Failed to create booking'
+        }, { status: 500 });
     }
 }

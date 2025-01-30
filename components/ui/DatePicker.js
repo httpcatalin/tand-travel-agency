@@ -40,8 +40,13 @@ export function DatePicker({
             day_today: "border border-secondary",
           }}
           selected={new Date(date)}
-          onSelect={(date) => setDate(date)} 
+          onSelect={(date) => setDate(date)}
           initialFocus
+          disabled={
+            {
+              before: new Date()
+            }
+          }
           {...props}
         />
       </PopoverContent>

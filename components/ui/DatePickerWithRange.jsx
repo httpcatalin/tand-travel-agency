@@ -31,7 +31,7 @@ export function DatePickerWithRange({ name, className, lang = "en" }) {
     async function getFlightDate() {
       const res = await fetch(
         process.env.NEXT_PUBLIC_BASE_URL +
-          "/api/flights?lastAvailableFlightDate=&firstAvailableFlightDate=",
+        "/api/flights?lastAvailableFlightDate=&firstAvailableFlightDate=",
         {
           next: { revalidate: 300 },
         }

@@ -12,7 +12,7 @@ export function BookHotels({ lang = 'en' }) {
     destination1: {
       destination: "Melbourne",
       checkIn: new Date(2025, 0, 28),
-      checkOut : new Date(2025, 0, 31),
+      checkOut: new Date(2025, 0, 31),
       nights: 3,
       adults: 2,
       children: 0,
@@ -21,7 +21,7 @@ export function BookHotels({ lang = 'en' }) {
     destination2: {
       destination: "Paris",
       checkIn: new Date(2025, 1, 2),
-      checkOut : new Date(2025, 1, 5),
+      checkOut: new Date(2025, 1, 5),
       nights: 3,
       adults: 2,
       children: 0,
@@ -30,7 +30,7 @@ export function BookHotels({ lang = 'en' }) {
     destination3: {
       destination: "London",
       checkIn: new Date(2025, 1, 7),
-      checkOut : new Date(2025, 1, 10),
+      checkOut: new Date(2025, 1, 10),
       nights: 3,
       adults: 2,
       children: 0,
@@ -39,7 +39,7 @@ export function BookHotels({ lang = 'en' }) {
     destination4: {
       destination: "Columbia",
       checkIn: new Date(2025, 1, 22),
-      checkOut : new Date(2025, 1, 25),
+      checkOut: new Date(2025, 1, 25),
       nights: 3,
       adults: 2,
       children: 0,
@@ -93,18 +93,18 @@ export function BookHotels({ lang = 'en' }) {
                 index === 0
                   ? "https://images.unsplash.com/photo-1565099824688-e93eb20fe622?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                   : index === 1
-                  ? "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  : index === 2
-                  ? "https://images.unsplash.com/photo-1534974790529-3af7cf1c4075?q=80&w=1087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                  : "https://images.unsplash.com/photo-1606298246186-08868ab77562?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    ? "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    : index === 2
+                      ? "https://images.unsplash.com/photo-1534974790529-3af7cf1c4075?q=80&w=1087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                      : "https://images.unsplash.com/photo-1606298246186-08868ab77562?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
               }
               placeName={deal.destination}
               subTitle={`${moment(deal.checkIn).format(
                 "MMM DD YYYY"
               )} - ${moment(deal.checkOut).format("MMM DD YYYY")}`}
-              person={`Adults: ${deal.adults}`}
+              person={`${t.adults}: ${deal.adults}`}
               cost={deal.price}
-              btnTitle={"See Details"}
+              btnTitle={t.seeDetails}
             />
           </form>
         ))}
