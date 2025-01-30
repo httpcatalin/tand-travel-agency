@@ -84,7 +84,7 @@ export default function Admin() {
     return (
         <div className="container mx-auto px-4 py-8">
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">User Management</h1>
+                <h1 className="text-2xl font-bold">Requests Management</h1>
                 <button
                     onClick={handleLogout}
                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
