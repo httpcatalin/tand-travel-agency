@@ -20,26 +20,25 @@ export function SelectClass({ lang = "en" }) {
 
   return (
     <SelectShadcn
+      value={flightClass}
       onValueChange={(value) => {
         dispatch(setFlightForm({ class: value }));
       }}
     >
       <input value={flightClass} name="flightClass" type="hidden" />
-      <SelectTrigger className="focus:ring-transparent focus:ring-offset-0 bg-white hover:bg-slate-500/10 w-full h-full border-0 ">
+      <SelectTrigger className="focus:ring-transparent focus:ring-offset-0 bg-white hover:bg-slate-500/10 w-full h-full border-0">
         <SelectValue
-          className="h-full"
-          defaultValue={flightClass}
-          placeholder={t.class[flightClass]}
+          placeholder={t.classLabels?.[flightClass] || flightClass}
         />
       </SelectTrigger>
       <SelectContent className={"bg-primary"}>
         <SelectGroup>
-          <SelectItem value="economy">{t.classLabels.economy}</SelectItem>
+          <SelectItem value="economy">{t.classLabels?.economy}</SelectItem>
           <SelectItem value="premium_economy">
-            {t.classLabels.premium_economy}
+            {t.classLabels?.premium_economy}
           </SelectItem>
-          <SelectItem value="business">{t.classLabels.business}</SelectItem>
-          <SelectItem value="first">{t.classLabels.first}</SelectItem>
+          <SelectItem value="business">{t.classLabels?.business}</SelectItem>
+          <SelectItem value="first">{t.classLabels?.first}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </SelectShadcn>

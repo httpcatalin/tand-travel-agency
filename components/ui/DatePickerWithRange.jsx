@@ -16,8 +16,9 @@ import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { useEffect } from "react";
 import { translations } from "@/lib/translations";
 
-export function DatePickerWithRange({ name, className }) {
+export function DatePickerWithRange({ name, className, lang = "en" }) {
   const dispatch = useDispatch();
+  const t = translations[lang]?.flights.form || translations.en.flights.form;
 
   const flightForm = useSelector((state) => state.flightForm.value);
 
@@ -94,11 +95,11 @@ export function DatePickerWithRange({ name, className }) {
           >
             {rangeDate?.from instanceof Date
               ? format(rangeDate.from, "LLL dd, y")
-              : "Pick a date"}{" "}
+              : t.pickDate}{" "}
             -{" "}
             {rangeDate?.to instanceof Date
               ? format(rangeDate.to, "LLL dd, y")
-              : "Pick a date"}
+              : t.pickDate}
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="center">

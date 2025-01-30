@@ -25,7 +25,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
 
   const getClassName = (classType) => {
     if (!classType) return "";
-    return t.class?.[classType] || classType;
+    return t.classLabels?.[classType] || classType;
   };
 
   const dispatch = useDispatch();
@@ -82,7 +82,11 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
     return false;
   };
 
-  const totalPassenger = () => flightFormData.adult + flightFormData.children;
+  const totalPassenger = () => {
+    const adults = parseInt(flightFormData.adult) || 0;
+    const children = parseInt(flightFormData.children) || 0;
+    return adults + children;
+  };
   console.log(t);
   return (
     <form
@@ -204,10 +208,10 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
             >
               <Button variant="ghost" className="font-normal">
                 {`${totalPassenger()} ${
-                  totalPassenger() > 1
-                    ? t.passengers.people
-                    : t.passengers.person
-                }, ${t.classLabels[getClassName(flightFormData.class)]}`}
+                  totalPassenger() === 1
+                    ? t.passengers.person
+                    : t.passengers.people
+                }, ${getClassName(flightFormData.class)}`}
               </Button>
             </PopoverTrigger>
             <PopoverContent>
@@ -217,7 +221,10 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="border-2 border-primary rounded-lg">
-                    <SelectClass lang={lang} />
+                    <SelectClass
+                      flightClass={getClassName(flightFormData.class)}
+                      lang={lang}
+                    />
                   </div>
                 </CardContent>
               </Card>
