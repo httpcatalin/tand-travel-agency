@@ -21,19 +21,26 @@ import { Input } from "@//components/ui/input";
 
 import { useEffect } from "react";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useSelector, useDispatch, dispatch } from "react-redux";
 import { setStayForm } from "@/reduxStore/features/stayFormSlice";
 
 import { addDays } from "date-fns";
 
-function SearchStaysForm({ searchParams = {} }) {
-  const dispatch = useDispatch();
+import { translations } from "@/lib/translations";
 
-  const nightsOptions = Array.from({ length: 14 }, (_, i) => (i + 1).toString());
-  const adultsOptions = Array.from({ length: 10 }, (_, i) => (i + 1).toString());
-  const childrenOptions = Array.from({ length: 5 }, (_, i) => (i).toString());
+function SearchStaysForm({ searchParams = {}, lang = "en" }) {
+  const t = translations[lang]?.stays.form || translations.en.stays.form;
+  const dispatch = useDispatch();
+  const nightsOptions = Array.from({ length: 14 }, (_, i) =>
+    (i + 1).toString()
+  );
+  const adultsOptions = Array.from({ length: 10 }, (_, i) =>
+    (i + 1).toString()
+  );
+  const childrenOptions = Array.from({ length: 5 }, (_, i) => i.toString());
 
   let staySearchParamsObj = {};
+  staySearchParamsObj += { lang: lang };
   if (Object.keys(searchParams).length > 0) {
     for (const [key, value] of Object.entries(searchParams)) {
       staySearchParamsObj[key] = value;
@@ -46,7 +53,7 @@ function SearchStaysForm({ searchParams = {} }) {
       nights: 3,
       adults: 2,
       children: 0,
-      price: 0,
+      promocode: "",
     };
   }
 
@@ -62,17 +69,15 @@ function SearchStaysForm({ searchParams = {} }) {
     e.preventDefault();
 
     if (searchForEmptyValues(stayFormData)) {
-      alert(
-        "Please fill all the required fields. Asterisk (*) indicates 'required'"
-      );
+      alert(t.filRequired);
       return;
     }
     if (stayFormData.adults > 10) {
-      alert("Maximum 10 adults are allowed");
+      alert(t.maxAdults);
       return;
     }
     if (stayFormData.children > 10) {
-      alert("Maximum 10 children are allowed");
+      alert(t.maxChildren);
       return;
     }
     if (stayFormData.adults <= 0) {
@@ -83,8 +88,6 @@ function SearchStaysForm({ searchParams = {} }) {
       alert("Please select non negative number for children");
       return;
     }
-
-    localStorage.setItem("stayFormData", JSON.stringify(stayFormData));
 
     e.target.submit();
   }
@@ -114,6 +117,7 @@ function SearchStaysForm({ searchParams = {} }) {
         name="destination"
         value={stayFormData.destination}
       />
+      <input type="hidden" name="lang" value={lang} />
 
       <input type="hidden" name="checkIn" value={stayFormData.checkIn} />
 
@@ -123,12 +127,13 @@ function SearchStaysForm({ searchParams = {} }) {
 
       <input type="hidden" name="children" value={stayFormData.children} />
 
-      <input type="hidden" name="price" value={stayFormData.price} />
+      <input type="hidden" name="promocode" value={stayFormData.promocode} />
+      <input type="hidden" name="lang" value={lang} />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_repeat(3,_1fr)]">
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Enter Destination <span className={"text-red-600"}>*</span>
+            {t.destination} <span className={"text-red-600"}>*</span>
           </span>
           <div className="p-2">
             <Image
@@ -140,13 +145,18 @@ function SearchStaysForm({ searchParams = {} }) {
           </div>
 
           <div className="h-full grow">
-            <Combobox searchResult={option} className={"h-full w-full"} />
+            <Combobox
+              searchResult={option}
+              lang={lang}
+              className={"h-full w-full"}
+            />
           </div>
         </div>
 
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Check in <span className={"text-red-600"}>*</span>
+            {t.checkIn}
+            <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full grow">
             <DatePicker
@@ -176,7 +186,7 @@ function SearchStaysForm({ searchParams = {} }) {
           }
         >
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Nights <span className={"text-red-600"}>*</span>
+            {t.nights} <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full flex items-center grow">
             {/* <DatePicker
@@ -207,7 +217,8 @@ function SearchStaysForm({ searchParams = {} }) {
                   })
                 );
               }}
-              className="ml-5 leading-none">
+              className="ml-5 leading-none"
+            >
               {nightsOptions.map((option, index) => (
                 <option key={index} value={option} className="h-full">
                   {option}
@@ -227,7 +238,7 @@ function SearchStaysForm({ searchParams = {} }) {
 
         <div className="relative flex h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            Adults <span className={"text-red-600"}>*</span> - Children{" "}
+            {t.adults} <span className={"text-red-600"}>*</span> - {t.children}{" "}
             <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full grow">
@@ -237,13 +248,13 @@ function SearchStaysForm({ searchParams = {} }) {
                 className="h-full w-full justify-start rounded-lg"
               >
                 <Button className="font-normal justify-start" variant={"ghost"}>
-                  {`${stayFormData.adults} Adults, ${stayFormData.children} Children`}
+                  {`${stayFormData.adults} ${t.adults}, ${stayFormData.children} ${t.children}`}
                 </Button>
               </PopoverTrigger>
               <PopoverContent>
                 <Card className="p-3 bg-primary/30 border-primary border-2 mb-3">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Adults </CardTitle>
+                    <CardTitle>{t.adults} </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0">
                     <select
@@ -255,7 +266,8 @@ function SearchStaysForm({ searchParams = {} }) {
                           })
                         );
                       }}
-                      className="w-10 ml-5 leading-none p-1">
+                      className="w-10 ml-5 leading-none p-1"
+                    >
                       {adultsOptions.map((option, index) => (
                         <option key={index} value={option} className="h-full">
                           {option}
@@ -266,7 +278,7 @@ function SearchStaysForm({ searchParams = {} }) {
                 </Card>
                 <Card className="p-3 bg-primary/30 border-primary border-2">
                   <CardHeader className="p-0 mb-4">
-                    <CardTitle>Children </CardTitle>
+                    <CardTitle>{t.children} </CardTitle>
                   </CardHeader>
                   <CardContent className="p-0 flex-col flex gap-3">
                     <select
@@ -278,7 +290,8 @@ function SearchStaysForm({ searchParams = {} }) {
                           })
                         );
                       }}
-                      className="w-10 ml-5 leading-none p-1">
+                      className="w-10 ml-5 leading-none p-1"
+                    >
                       {childrenOptions.map((option, index) => (
                         <option key={index} value={option} className="h-full">
                           {option}
@@ -300,7 +313,7 @@ function SearchStaysForm({ searchParams = {} }) {
             src={"/icons/building.svg"}
             alt={"search_icon"}
           />
-          <span>Confirm</span>
+          <span>{t.confirm}</span>
         </Button>
       </div>
     </form>
