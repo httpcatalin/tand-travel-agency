@@ -1,12 +1,57 @@
+"use client"
 import { BookingCard } from "@/components/BookingCard";
 import { SectionTitle } from "@/components/SectionTitle";
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import moment from "moment";
 import { translations } from "@/lib/translations";
 
-import routes from "@/data/routes.json";
 export function BookHotels({ lang = 'en' }) {
   const t = translations[lang]?.hotels || translations.en.hotels;
+
+
+  const bestDeals = {
+    destination1: {
+      destination: "Melbourne",
+      checkIn: new Date(2025, 0, 28),
+      checkOut : new Date(2025, 0, 31),
+      nights: 3,
+      adults: 2,
+      children: 0,
+      price: 500
+    },
+    destination2: {
+      destination: "Paris",
+      checkIn: new Date(2025, 1, 2),
+      checkOut : new Date(2025, 1, 5),
+      nights: 3,
+      adults: 2,
+      children: 0,
+      price: 400
+    },
+    destination3: {
+      destination: "London",
+      checkIn: new Date(2025, 1, 7),
+      checkOut : new Date(2025, 1, 10),
+      nights: 3,
+      adults: 2,
+      children: 0,
+      price: 500
+    },
+    destination4: {
+      destination: "Columbia",
+      checkIn: new Date(2025, 1, 22),
+      checkOut : new Date(2025, 1, 25),
+      nights: 3,
+      adults: 2,
+      children: 0,
+      price: 700
+    },
+  };
+
+  function handleSubmit(e) {
+    e.preventDefault();
+
+    e.target.submit();
+  };
 
   return (
     <section className="mb-[80px]">
@@ -16,51 +61,53 @@ export function BookHotels({ lang = 'en' }) {
           subTitle={t.hotDealsSubtitle}
           className="flex-[0_0_50%]"
         />
-        {/* <Button asChild variant={ "outline" }>
-          <Link scroll={ false } href={ "#" }>See all</Link>
-        </Button> */}
       </div>
       <div className="grid gap-[16px] sm:grid-cols-2 xl:grid-cols-4">
-        <BookingCard
-          bgImg={
-            "https://images.unsplash.com/photo-1565099824688-e93eb20fe622?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          }
-          placeName={"Melbourne"}
-          subTitle={"1/06 - 4/06"}
-          cost={700}
-          btnHref={`${routes.hotels.path}/${123}/book`}
-          btnTitle={t.seeDetails}
-        />
-        <BookingCard
-          bgImg={
-            "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          }
-          placeName={"Paris"}
-          subTitle={"10/07 - 14/07"}
-          cost={600}
-          btnHref={`${routes.hotels.path}/${123}/book`}
-          btnTitle={t.seeDetails}
-        />
-        <BookingCard
-          bgImg={
-            "https://images.unsplash.com/photo-1534974790529-3af7cf1c4075?q=80&w=1087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          }
-          placeName={"London"}
-          subTitle={"29/05 - 01/06"}
-          cost={350}
-          btnHref={`${routes.hotels.path}/${123}/book`}
-          btnTitle={t.seeDetails}
-        />
-        <BookingCard
-          bgImg={
-            "https://images.unsplash.com/photo-1606298246186-08868ab77562?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-          }
-          placeName={"Columbia"}
-          subTitle={"21/04 - 24/04"}
-          cost={700}
-          btnHref={`${routes.hotels.path}/${123}/book`}
-          btnTitle={t.seeDetails}
-        />
+        {Object.values(bestDeals).map((deal, index) => (
+          <form
+            id="stayForm"
+            key={index}
+            action="/hotels/123/book"
+            method="get"
+            className="flex justify-center"
+            onSubmit={handleSubmit}
+          >
+            <input type="hidden" name="destination" value={deal.destination} />
+            <input
+              type="hidden"
+              name="checkIn"
+              value={deal.checkIn}
+            />
+            <input
+              type="hidden"
+              name="checkOut"
+              value={deal.checkOut}
+            />
+            <input type="hidden" name="nights" value={deal.nights} />
+            <input type="hidden" name="adults" value={deal.adults} />
+            <input type="hidden" name="children" value={deal.children} />
+            <input type="hidden" name="price" value={deal.price} />
+
+            <BookingCard
+              bgImg={
+                index === 0
+                  ? "https://images.unsplash.com/photo-1565099824688-e93eb20fe622?q=80&w=1171&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  : index === 1
+                  ? "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  : index === 2
+                  ? "https://images.unsplash.com/photo-1534974790529-3af7cf1c4075?q=80&w=1087&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  : "https://images.unsplash.com/photo-1606298246186-08868ab77562?q=80&w=1287&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+              }
+              placeName={deal.destination}
+              subTitle={`${moment(deal.checkIn).format(
+                "MMM DD YYYY"
+              )} - ${moment(deal.checkOut).format("MMM DD YYYY")}`}
+              person={`Adults: ${deal.adults}`}
+              cost={deal.price}
+              btnTitle={"See Details"}
+            />
+          </form>
+        ))}
       </div>
     </section>
   );

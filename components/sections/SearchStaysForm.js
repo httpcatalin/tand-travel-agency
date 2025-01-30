@@ -53,7 +53,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
       nights: 3,
       adults: 2,
       children: 0,
-      promocode: "",
+      price: 0,
     };
   }
 
@@ -127,7 +127,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
 
       <input type="hidden" name="children" value={stayFormData.children} />
 
-      <input type="hidden" name="promocode" value={stayFormData.promocode} />
+      <input type="hidden" name="price" value={stayFormData.price} />
       <input type="hidden" name="lang" value={lang} />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_repeat(3,_1fr)]">
