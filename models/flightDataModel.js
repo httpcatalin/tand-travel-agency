@@ -6,10 +6,15 @@ const FlightDataSchema = new mongoose.Schema({
     ref: 'User',
     required: true
   },
+  isDone: {
+    type: Boolean,
+    default: false
+  },
   from: {
     type: String,
     required: true
   },
+
   to: {
     type: String,
     required: true
@@ -33,7 +38,7 @@ const FlightDataSchema = new mongoose.Schema({
   },
   returnDate: {
     type: Date,
-    required: function() {
+    required: function () {
       return this.trip === 'roundtrip';
     }
   },
@@ -52,7 +57,11 @@ const FlightDataSchema = new mongoose.Schema({
     type: Number,
     default: 0,
     max: 4
-  }
+  },
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }]
 }, {
   timestamps: true
 });

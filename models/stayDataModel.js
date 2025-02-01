@@ -20,35 +20,34 @@ const StayDataSchema = new mongoose.Schema({
   },
   nights: {
     type: Number,
-    required: true,
-    min: 1,
-    max: 14
+    required: true
   },
   adults: {
     type: Number,
-    required: true,
-    min: 1,
-    max: 10
+    required: true
   },
   children: {
     type: Number,
-    default: 0,
-    max: 4
+    default: 0
+  },
+  hotel: {
+    type: String,
+    default: ''
   },
   price: {
     type: Number,
     min: 0
-  }
+  },
+  isDone: {
+    type: Boolean,
+    default: false
+  },
+  comments: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Comment'
+  }]
 }, {
   timestamps: true
-});
-
-// Validation to ensure checkOut is after checkIn
-StayDataSchema.pre('save', function(next) {
-  if (this.checkOut <= this.checkIn) {
-    next(new Error('Check-out date must be after check-in date'));
-  }
-  next();
 });
 
 export default mongoose.models.StayData || mongoose.model('StayData', StayDataSchema);
