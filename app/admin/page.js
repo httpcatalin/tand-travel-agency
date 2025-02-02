@@ -98,7 +98,7 @@ export default function AdminDashboard() {
                                 <td className="py-2 px-4 border">{user.user.fullName}</td>
                                 <td className="py-2 px-4 border">{user.user.email}</td>
                                 <td className="py-2 px-4 border">{user.user.phone}</td>
-                                <td className="py-2 px-4 border">{user.isDone}</td>
+                                <td className="py-2 px-4 border">{user.isDone ? "Completed" : "Pend"}</td>
 
                                 <td className="py-2 px-4 border">
                                     <Link href={`/admin/request/${user._id}?type=flight`}>
