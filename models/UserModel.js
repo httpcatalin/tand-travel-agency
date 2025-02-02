@@ -14,7 +14,10 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-
+    isDone: {
+        type: Boolean,
+        default: false
+    },
     flightBookings: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'FlightData'
