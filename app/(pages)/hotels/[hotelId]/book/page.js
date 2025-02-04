@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import { BreadcrumbUI } from "@/components/local-ui/breadcrumb";
 import { HotelDetailsCard } from "@/components/pages/hotels.book/HotelDetailsCard";
-
+import axios from 'axios';
 export default function BookingPage() {
   const router = useRouter();
   const {
@@ -29,36 +29,124 @@ export default function BookingPage() {
       stayData: stayData ? JSON.parse(stayData) : null,
       flightData: flightData ? JSON.parse(flightData) : null
     });
+
   }, []);
+
+
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const response = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          userData: data,
-          stayData: bookingData.stayData,
-          flightData: bookingData.flightData
-        }),
-      });
+      console.log('Form data:', data);
+      console.log('Initial booking data:', bookingData);
 
-      if (!response.ok) throw new Error('Failed to submit');
+      if (bookingData.flightData) {
+        bookingData.flightData = {
+          ...bookingData.flightData,
+          departDate: new Date(bookingData.flightData.departDate).toISOString().split('T')[0],
+          returnDate: bookingData.flightData.returnDate ?
+            new Date(bookingData.flightData.returnDate).toISOString().split('T')[0] : null,
+          Trip: bookingData.flightData.trip || 'Round Trip',
+          from: bookingData.flightData.from || `${bookingData.flightData.departureAirportCode}`,
+          to: bookingData.flightData.to || `${bookingData.flightData.arrivalAirportCode}`,
+          class: bookingData.flightData.class || 'economy',
+          adult: parseInt(bookingData.flightData.adult) || 0,
+          children: parseInt(bookingData.flightData.children) || 0
+        };
+        console.log('Processed flight data:', bookingData.flightData);
+      }
 
-      // Clear localStorage after successful booking
+      if (bookingData.stayData) {
+        bookingData.stayData = {
+          ...bookingData.stayData,
+          checkIn: new Date(bookingData.stayData.checkIn).toISOString().split('T')[0],
+          checkOut: new Date(bookingData.stayData.checkOut).toISOString().split('T')[0],
+          nights: parseInt(bookingData.stayData.nights) || 1,
+          adults: parseInt(bookingData.stayData.adults) || 1,
+          children: parseInt(bookingData.stayData.children) || 0
+        };
+        console.log('Processed stay data:', bookingData.stayData);
+      }
+
+      const { data: userData } = await axios.get('/api/test');
+      console.log('User data response:', userData);
+
+      let existingUser = null;
+      if (userData.data) {
+        existingUser = userData.data.find(user =>
+          user.properties.Email.email === data.email &&
+          user.properties['Phone Number'].phone_number === data.phone
+        );
+        console.log('Found existing user:', existingUser);
+      }
+
+      if (!existingUser) {
+        const createUserPayload = {
+          name: data.fullName,
+          email: data.email,
+          phone: data.phone,
+          status: "Lead"
+        };
+        console.log('Creating new user with payload:', createUserPayload);
+
+        const { data: newUser } = await axios.post('/api/test', createUserPayload);
+        existingUser = newUser;
+        console.log('New user created:', existingUser);
+      }
+
+      if (bookingData.stayData) {
+        const stayPayload = {
+          ...bookingData.stayData,
+          userId: existingUser.id,
+          databaseId: "19080eea390f805b8cd8f0ea17825ee2",
+          status: "Active"
+        };
+        console.log('Creating stay booking with payload:', stayPayload);
+
+        await axios.post('/api/stays', stayPayload);
+        console.log('Stay booking created successfully');
+      }
+
+      if (bookingData.flightData) {
+        const flightPayload = {
+          userId: existingUser.id,
+          databaseId: "19080eea390f80318a79eb0dab0b15f9",
+          from: bookingData.flightData.from,
+          to: bookingData.flightData.to,
+          departureAirportCode: bookingData.flightData.departureAirportCode,
+          arrivalAirportCode: bookingData.flightData.arrivalAirportCode,
+          departDate: new Date(bookingData.flightData.departDate).toISOString().split('T')[0],
+          returnDate: bookingData.flightData.returnDate ?
+            new Date(bookingData.flightData.returnDate).toISOString().split('T')[0] : null,
+          trip: bookingData.flightData.trip,
+          class: bookingData.flightData.class,
+          adult: parseInt(bookingData.flightData.adult),
+          children: parseInt(bookingData.flightData.children)
+        };
+
+        console.log('Creating flight booking with payload:', flightPayload);
+
+        try {
+          const { data: flightResponse } = await axios.post('/api/flight', flightPayload);
+          console.log('Flight API response:', flightResponse);
+        } catch (error) {
+          console.error('Flight API error:', error.response?.data);
+          throw error;
+        }
+      }
+
       localStorage.removeItem('stayBookingData');
       localStorage.removeItem('flightBookingData');
-
       setSubmitStatus('success');
       router.push('/');
+
     } catch (error) {
+      console.error('Submission error:', error.response?.data || error.message);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <main className="mx-auto mb-[80px] mt-[40px] w-[95%] text-secondary">
       <BreadcrumbUI />

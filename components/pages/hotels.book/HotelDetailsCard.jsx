@@ -14,7 +14,7 @@ import lineRight from "@/public/icons/line-right.svg";
 export function HotelDetailsCard() {
   const [stayData, setStayData] = useState(null);
   const [flightData, setFlightData] = useState(null);
-
+  const currentLocation = "Chisinau";
   useEffect(() => {
     if (typeof window !== "undefined") {
       const params = new URLSearchParams(window.location.search);
@@ -39,6 +39,7 @@ export function HotelDetailsCard() {
         }
         const newStayData = {
           destination: destination,
+          from: currentLocation,
           checkIn: checkIn,
           checkOut: updatedCheckOut,
           nights: parseInt(nights),
@@ -93,7 +94,7 @@ export function HotelDetailsCard() {
     }
   }, []);
 
-  const currentLocation = "Chisinau";
+
 
   return (
     <div>
