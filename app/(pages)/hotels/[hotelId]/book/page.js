@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import { BreadcrumbUI } from "@/components/local-ui/breadcrumb";
 import { HotelDetailsCard } from "@/components/pages/hotels.book/HotelDetailsCard";
 import axios from 'axios';
+import { FaSpinner } from 'react-icons/fa';
+
 export default function BookingPage() {
   const router = useRouter();
   const {
@@ -15,6 +17,7 @@ export default function BookingPage() {
   } = useForm();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const [bookingData, setBookingData] = useState({
     stayData: null,
@@ -32,14 +35,10 @@ export default function BookingPage() {
 
   }, []);
 
-
-
   const onSubmit = async (data) => {
     setIsSubmitting(true);
+    setIsLoading(true);
     try {
-      console.log('Form data:', data);
-      console.log('Initial booking data:', bookingData);
-
       if (bookingData.flightData) {
         bookingData.flightData = {
           ...bookingData.flightData,
@@ -53,7 +52,6 @@ export default function BookingPage() {
           adult: parseInt(bookingData.flightData.adult) || 0,
           children: parseInt(bookingData.flightData.children) || 0
         };
-        console.log('Processed flight data:', bookingData.flightData);
       }
 
       if (bookingData.stayData) {
@@ -65,88 +63,128 @@ export default function BookingPage() {
           adults: parseInt(bookingData.stayData.adults) || 1,
           children: parseInt(bookingData.stayData.children) || 0
         };
-        console.log('Processed stay data:', bookingData.stayData);
       }
 
       const { data: userData } = await axios.get('/api/test');
-      console.log('User data response:', userData);
 
       let existingUser = null;
+      let flightRequests = [];
+      let hotelRequests = [];
+
       if (userData.data) {
         existingUser = userData.data.find(user =>
           user.properties.Email.email === data.email &&
           user.properties['Phone Number'].phone_number === data.phone
         );
-        console.log('Found existing user:', existingUser);
+
+        if (existingUser) {
+          flightRequests = existingUser.properties["Flight Requests"]?.relation?.map(item => item.id) || [];
+          hotelRequests = existingUser.properties["Hotel Requests"]?.relation?.map(item => item.id) || [];
+        }
       }
 
       if (!existingUser) {
-        const createUserPayload = {
+        const { data: newUser } = await axios.post('/api/test', {
           name: data.fullName,
           email: data.email,
           phone: data.phone,
-          status: "Lead"
-        };
-        console.log('Creating new user with payload:', createUserPayload);
-
-        const { data: newUser } = await axios.post('/api/test', createUserPayload);
+          flightRequests: [],
+          hotelRequests: []
+        });
         existingUser = newUser;
-        console.log('New user created:', existingUser);
+        existingUser.id = newUser.data.id;
       }
 
+      let stayResponse = null;
       if (bookingData.stayData) {
-        const stayPayload = {
-          ...bookingData.stayData,
-          userId: existingUser.id,
-          databaseId: "19080eea390f805b8cd8f0ea17825ee2",
-          status: "Active"
-        };
-        console.log('Creating stay booking with payload:', stayPayload);
-
-        await axios.post('/api/stays', stayPayload);
-        console.log('Stay booking created successfully');
+        try {
+          const { data: stayDataResponse } = await axios.post('/api/stays', {
+            ...bookingData.stayData,
+            userId: existingUser.id,
+            databaseId: "19080eea390f805b8cd8f0ea17825ee2",
+            status: "Active"
+          });
+          stayResponse = stayDataResponse.data;
+          hotelRequests.push(stayResponse.id);
+        } catch (error) {
+          console.error('Stay API error:', error.response?.data || error.message);
+          throw error;
+        }
       }
 
       if (bookingData.flightData) {
-        const flightPayload = {
-          userId: existingUser.id,
-          databaseId: "19080eea390f80318a79eb0dab0b15f9",
-          from: bookingData.flightData.from,
-          to: bookingData.flightData.to,
-          departureAirportCode: bookingData.flightData.departureAirportCode,
-          arrivalAirportCode: bookingData.flightData.arrivalAirportCode,
-          departDate: new Date(bookingData.flightData.departDate).toISOString().split('T')[0],
-          returnDate: bookingData.flightData.returnDate ?
-            new Date(bookingData.flightData.returnDate).toISOString().split('T')[0] : null,
-          trip: bookingData.flightData.trip,
-          class: bookingData.flightData.class,
-          adult: parseInt(bookingData.flightData.adult),
-          children: parseInt(bookingData.flightData.children)
-        };
-
-        console.log('Creating flight booking with payload:', flightPayload);
-
         try {
-          const { data: flightResponse } = await axios.post('/api/flight', flightPayload);
-          console.log('Flight API response:', flightResponse);
-        } catch (error) {
-          console.error('Flight API error:', error.response?.data);
-          throw error;
+          const { data: flightResponse } = await axios.post('/api/flight', {
+            userId: existingUser.id,
+            databaseId: "19080eea390f80318a79eb0dab0b15f9",
+            ...bookingData.flightData
+          });
+          flightRequests.push(flightResponse.data.id);
+
+          // const calendarData = {
+          //   databaseId: "19080eea390f819bb0f4dbf598e1c256",
+          //   userId: existingUser.id,
+          //   name: data.fullName,
+          //   date: bookingData.flightData.departDate,
+          //   flightRequests: [flightResponse.data.id],
+          //   from: bookingData.flightData.from,
+          //   to: bookingData.flightData.to,
+          //   hotelRequests: stayResponse ? [stayResponse.id] : []
+          // };
+
+          // const calendarResponse = await axios.post('/api/calendar', calendarData);
+          // console.log('Calendar API response:', calendarResponse.data);
+
+        } catch (calendarError) {
+          console.error('Calendar API error:', calendarError.response?.data || calendarError.message);
+          throw calendarError;
         }
+
+      } else if (bookingData.stayData) {
+        try {
+          // const calendarData = {
+          //   databaseId: "19080eea390f819bb0f4dbf598e1c256",
+          //   userId: existingUser.id,
+          //   name: `Hotel for ${data.fullName} at ${bookingData.stayData.destination}`,
+          //   date: bookingData.stayData.checkIn,
+          //   from: bookingData.stayData.from,
+          //   flightRequests: [],
+          //   hotelRequests: stayResponse ? [stayResponse.id] : []
+          // };
+
+          // const calendarResponse = await axios.post('/api/calendar', calendarData);
+          // console.log('Calendar API response:', calendarResponse.data);
+
+        } catch (calendarError) {
+          console.error('Calendar API error:', calendarError.response?.data || calendarError.message);
+          throw calendarError;
+        }
+      }
+
+      try {
+        await axios.put(`/api/test/${existingUser.id}`, {
+          flightRequests: flightRequests,
+          hotelRequests: hotelRequests
+        });
+      } catch (updateError) {
+        console.error('User update error:', updateError.response?.data || updateError.message);
+        throw updateError;
       }
 
       localStorage.removeItem('stayBookingData');
       localStorage.removeItem('flightBookingData');
       setSubmitStatus('success');
-      router.push('/');
+      // router.push('/');
 
     } catch (error) {
       console.error('Submission error:', error.response?.data || error.message);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
+
   return (
     <main className="mx-auto mb-[80px] mt-[40px] w-[95%] text-secondary">
       <BreadcrumbUI />
@@ -208,9 +246,14 @@ export default function BookingPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50"
+              className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition-colors duration-200 disabled:opacity-50 flex items-center justify-center"
             >
-              {isSubmitting ? "Submitting..." : "Book Now"}
+              {isSubmitting ? (
+                <div className="flex items-center">
+                  <FaSpinner className="animate-spin mr-2" />
+                  Submitting...
+                </div>
+              ) : "Book Now"}
             </button>
 
             {submitStatus === 'success' && (

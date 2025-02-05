@@ -11,9 +11,6 @@ export async function POST(request) {
         const response = await notion.pages.create({
             parent: { database_id: databaseId },
             properties: {
-                Status: {
-                    status: { name: "Active" }
-                },
                 Destination: {
                     title: [{
                         text: { content: stayData.destination || '' }
