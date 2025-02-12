@@ -4,6 +4,7 @@ import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from 'react';
 
 const languageOptions = {
   en: {
@@ -23,7 +24,7 @@ const languageOptions = {
   }
 };
 
-export function Nav({ className, type = "default", currentLang = 'en' }) {
+export function Nav({  className, type = "default", searchParams, language="" }) {
   const types = {
     home: {
       nav: "rounded-[24px] px-[32px] text-white backdrop-blur-[2px]",
@@ -34,6 +35,18 @@ export function Nav({ className, type = "default", currentLang = 'en' }) {
       logoFill: "black",
     },
   };
+  
+  const [lang, setLang] = useState('en');
+  const [languageVerify, setLanguage] = useState(language === "" ? true : false);
+  
+    useEffect(() => {
+      if (languageVerify) {
+          if (searchParams?.value.split('"')[3]) {
+            setLang(searchParams.value.split('"')[3]);
+          }
+      } else setLang(language);
+      }, [searchParams]);
+
 
   const handleLanguageChange = (e) => {
     const form = e.target.form;
@@ -73,25 +86,26 @@ export function Nav({ className, type = "default", currentLang = 'en' }) {
         <Logo className="h-[36px] w-fit" otherFill={types[type].logoFill} />
       </div>
 
+      {languageVerify && (
       <div className="relative">
         <form method="get">
           <select
             name="lang"
-            value={currentLang}
+            value={lang}
             onChange={handleLanguageChange}
             className="appearance-none bg-transparent border border-current/20 rounded-md 
                      px-2 lg:px-3 py-1.5 pr-7 lg:pr-8 text-xs lg:text-sm font-medium 
                      focus:outline-none focus:ring-2 focus:ring-primary/50
                      hover:border-current transition-colors duration-200"
           >
-            {Object.entries(languageOptions).map(([code, lang]) => (
+            {Object.entries(languageOptions).map(([code, language]) => (
               <option
                 key={code}
                 value={code}
                 className="flex items-center gap-2 text-black bg-white"
               >
 
-                {lang.code}
+                {language.code}
               </option>
             ))}
           </select>
@@ -110,6 +124,7 @@ export function Nav({ className, type = "default", currentLang = 'en' }) {
           </svg>
         </form>
       </div>
+      ) }
     </nav>
   );
 }

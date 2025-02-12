@@ -19,7 +19,7 @@ import {
 } from "@//components/ui/card";
 import { Input } from "@//components/ui/input";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useSelector, useDispatch, dispatch } from "react-redux";
 import { setStayForm } from "@/reduxStore/features/stayFormSlice";
@@ -47,6 +47,8 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
     }
   } else {
     staySearchParamsObj = {
+      country: "",
+      city: "",
       destination: "",
       checkIn: new Date().toString(),
       checkOut: addDays(new Date(), 1).toString(),
@@ -62,12 +64,15 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const stayFormData = useSelector((state) => state.stayForm.value);
-  console.log(stayFormData);
+  const stayFormData = useSelector((state) => state.stayForm.value);  
+  
+  const countries = Object.keys(option);
+  const cities = option[stayFormData.country];
 
   function handleSubmit(e) {
     e.preventDefault();
-
+    console.log(stayFormData.destination);
+    
     if (searchForEmptyValues(stayFormData)) {
       alert(t.filRequired);
       return;
@@ -99,6 +104,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
         continue;
       }
       if (value === "") {
+        console.log(value, key);
         return true;
       }
     }
@@ -109,7 +115,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
     <form
       id="stayForm"
       method="get"
-      action="/hotels/123/book"
+      action="/hotels/123/book/"
       onSubmit={handleSubmit}
     >
       <input
@@ -128,12 +134,11 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
       <input type="hidden" name="children" value={stayFormData.children} />
 
       <input type="hidden" name="price" value={stayFormData.price} />
-      <input type="hidden" name="lang" value={lang} />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_repeat(3,_1fr)]">
-        <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
+        <div className="relative flex h-[48px] w-50% items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            {t.destination} <span className={"text-red-600"}>*</span>
+            {t.country} <span className={"text-red-600"}>*</span>
           </span>
           <div className="p-2">
             <Image
@@ -146,12 +151,38 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
 
           <div className="h-full grow">
             <Combobox
-              searchResult={option}
+              searchResult={countries}
               lang={lang}
               className={"h-full w-full"}
+              propertyName={"country"}
             />
           </div>
         </div>
+
+        {cities && (
+          <div className="relative flex h-[48px] w-50% items-center gap-[4px] rounded-[8px] border-2 border-primary">
+            <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+              {t.city} <span className={"text-red-600"}>*</span>
+            </span>
+            <div className="p-2">
+              <Image
+                alt=""
+                width={24}
+                height={24}
+                src={"/icons/bed-filled.svg"}
+              />
+            </div>
+
+            <div className="h-full grow">
+              <Combobox
+                searchResult={cities}
+                lang={lang}
+                className={"h-full w-full"}
+                propertyName={"city"}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">

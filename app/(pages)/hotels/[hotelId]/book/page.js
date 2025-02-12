@@ -7,8 +7,12 @@ import { BreadcrumbUI } from "@/components/local-ui/breadcrumb";
 import { HotelDetailsCard } from "@/components/pages/hotels.book/HotelDetailsCard";
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
+import { translations } from '@/lib/translations';
 
-export default function BookingPage() {
+export default function BookingPage({ searchParams={} }) {
+  const [lang, setLang] = useState('en');
+  const t = translations[lang]?.bookingPage || translations.en.bookingPage;
+  
   const router = useRouter();
   const {
     register,
@@ -23,6 +27,12 @@ export default function BookingPage() {
     stayData: null,
     flightData: null
   });
+
+  useEffect(() => {
+      if (searchParams?.lang) {
+        setLang(searchParams.lang);
+      }
+  }, [searchParams]);
 
   useEffect(() => {
     const stayData = localStorage.getItem('stayBookingData');
@@ -42,9 +52,9 @@ export default function BookingPage() {
       if (bookingData.flightData) {
         bookingData.flightData = {
           ...bookingData.flightData,
-          departDate: new Date(bookingData.flightData.departDate).toISOString().split('T')[0],
+          departDate: new Date(bookingData.flightData.departDate).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
           returnDate: bookingData.flightData.returnDate ?
-            new Date(bookingData.flightData.returnDate).toISOString().split('T')[0] : null,
+            new Date(bookingData.flightData.returnDate).toLocaleDateString("ro-MD").split(".").reverse().join("-") : null,
           Trip: bookingData.flightData.trip || 'Round Trip',
           from: bookingData.flightData.from || `${bookingData.flightData.departureAirportCode}`,
           to: bookingData.flightData.to || `${bookingData.flightData.arrivalAirportCode}`,
@@ -57,8 +67,8 @@ export default function BookingPage() {
       if (bookingData.stayData) {
         bookingData.stayData = {
           ...bookingData.stayData,
-          checkIn: new Date(bookingData.stayData.checkIn).toISOString().split('T')[0],
-          checkOut: new Date(bookingData.stayData.checkOut).toISOString().split('T')[0],
+          checkIn: new Date(bookingData.stayData.checkIn).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
+          checkOut: new Date(bookingData.stayData.checkOut).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
           nights: parseInt(bookingData.stayData.nights) || 1,
           adults: parseInt(bookingData.stayData.adults) || 1,
           children: parseInt(bookingData.stayData.children) || 0
@@ -98,6 +108,7 @@ export default function BookingPage() {
       let stayResponse = null;
       if (bookingData.stayData) {
         try {
+          localStorage.removeItem('flightBookingData');
           const { data: stayDataResponse } = await axios.post('/api/stays', {
             ...bookingData.stayData,
             userId: existingUser.id,
@@ -106,6 +117,7 @@ export default function BookingPage() {
           });
           stayResponse = stayDataResponse.data;
           hotelRequests.push(stayResponse.id);
+          localStorage.removeItem('stayBookingData');
         } catch (error) {
           console.error('Stay API error:', error.response?.data || error.message);
           throw error;
@@ -114,51 +126,19 @@ export default function BookingPage() {
 
       if (bookingData.flightData) {
         try {
+          localStorage.removeItem('stayBookingData');
           const { data: flightResponse } = await axios.post('/api/flight', {
             userId: existingUser.id,
             databaseId: "19080eea390f80318a79eb0dab0b15f9",
             ...bookingData.flightData
           });
           flightRequests.push(flightResponse.data.id);
-
-          // const calendarData = {
-          //   databaseId: "19080eea390f819bb0f4dbf598e1c256",
-          //   userId: existingUser.id,
-          //   name: data.fullName,
-          //   date: bookingData.flightData.departDate,
-          //   flightRequests: [flightResponse.data.id],
-          //   from: bookingData.flightData.from,
-          //   to: bookingData.flightData.to,
-          //   hotelRequests: stayResponse ? [stayResponse.id] : []
-          // };
-
-          // const calendarResponse = await axios.post('/api/calendar', calendarData);
-          // console.log('Calendar API response:', calendarResponse.data);
-
-        } catch (calendarError) {
-          console.error('Calendar API error:', calendarError.response?.data || calendarError.message);
-          throw calendarError;
+          localStorage.removeItem('flightBookingData');
+        } catch (flightData) {
+          console.error('Flight API error:', flightData.response?.data || flightData.message);
+          throw flightData;
         }
 
-      } else if (bookingData.stayData) {
-        try {
-          // const calendarData = {
-          //   databaseId: "19080eea390f819bb0f4dbf598e1c256",
-          //   userId: existingUser.id,
-          //   name: `Hotel for ${data.fullName} at ${bookingData.stayData.destination}`,
-          //   date: bookingData.stayData.checkIn,
-          //   from: bookingData.stayData.from,
-          //   flightRequests: [],
-          //   hotelRequests: stayResponse ? [stayResponse.id] : []
-          // };
-
-          // const calendarResponse = await axios.post('/api/calendar', calendarData);
-          // console.log('Calendar API response:', calendarResponse.data);
-
-        } catch (calendarError) {
-          console.error('Calendar API error:', calendarError.response?.data || calendarError.message);
-          throw calendarError;
-        }
       }
 
       try {
@@ -171,10 +151,8 @@ export default function BookingPage() {
         throw updateError;
       }
 
-      localStorage.removeItem('stayBookingData');
-      localStorage.removeItem('flightBookingData');
       setSubmitStatus('success');
-      // router.push('/');
+      router.push('/');
 
     } catch (error) {
       console.error('Submission error:', error.response?.data || error.message);
@@ -190,17 +168,19 @@ export default function BookingPage() {
       <BreadcrumbUI />
       <div className="mt-[30px] flex gap-[20px] max-lg:flex-col lg:gap-[30px] xl:gap-[40px]">
         <div>
-          <HotelDetailsCard />
+          <HotelDetailsCard
+            lang={lang}
+          />
         </div>
 
         <div className="h-min grow rounded-[12px] bg-white p-6 shadow-lg">
-          <h2 className="text-2xl font-bold mb-6">Contact Information</h2>
+          <h2 className="text-2xl font-bold mb-6">{t.title}</h2>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">Full Name</label>
+              <label className="block text-sm font-medium mb-2">{t.fullName}</label>
               <input
                 {...register("fullName", {
-                  required: "Name is required",
+                  required: (t.requiredErrors.fullName),
                   minLength: { value: 2, message: "Name must be at least 2 characters" }
                 })}
                 className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -210,10 +190,10 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Email Address</label>
+              <label className="block text-sm font-medium mb-2">{t.email}</label>
               <input
                 {...register("email", {
-                  required: "Email is required",
+                  required: (t.requiredErrors.email),
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                     message: "Invalid email address"
@@ -227,10 +207,10 @@ export default function BookingPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">Phone Number</label>
+              <label className="block text-sm font-medium mb-2">{t.phone}</label>
               <input
                 {...register("phone", {
-                  required: "Phone number is required",
+                  required: (t.requiredErrors.phone),
                   pattern: {
                     value: /^\+?[1-9]\d{1,14}$/,
                     message: "Invalid phone number"
@@ -251,16 +231,16 @@ export default function BookingPage() {
               {isSubmitting ? (
                 <div className="flex items-center">
                   <FaSpinner className="animate-spin mr-2" />
-                  Submitting...
+                  {t.submitting}
                 </div>
-              ) : "Book Now"}
+              ) : (t.confirm)}
             </button>
 
             {submitStatus === 'success' && (
-              <p className="text-green-500 text-center">Booking submitted successfully!</p>
+              <p className="text-green-500 text-center">{t.success}</p>
             )}
             {submitStatus === 'error' && (
-              <p className="text-red-500 text-center">Something went wrong. Please try again.</p>
+              <p className="text-red-500 text-center">{t.error}</p>
             )}
           </form>
         </div>

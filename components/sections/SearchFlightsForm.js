@@ -87,7 +87,6 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
     const children = parseInt(flightFormData.children) || 0;
     return adults + children;
   };
-  console.log(t);
   return (
     <form
       id="flightform"

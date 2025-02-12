@@ -7,7 +7,6 @@ import { translations } from "@/lib/translations";
 export function BookHotels({ lang = 'en' }) {
   const t = translations[lang]?.hotels || translations.en.hotels;
 
-
   const bestDeals = {
     destination1: {
       destination: "Melbourne",
@@ -72,6 +71,7 @@ export function BookHotels({ lang = 'en' }) {
             className="flex justify-center"
             onSubmit={handleSubmit}
           >
+            <input type="hidden" name="lang" value={lang} />
             <input type="hidden" name="destination" value={deal.destination} />
             <input
               type="hidden"

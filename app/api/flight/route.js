@@ -32,11 +32,13 @@ export async function POST(request) {
                     start: flightData.departDate
                 }
             },
-            "Return Date": {
-                date: {
-                    start: flightData.returnDate
+            ...(flightData.trip !== 'oneway' && {
+                "Return Date": {
+                    date: {
+                        start: flightData.returnDate
+                    }
                 }
-            },
+            }),
             "Trip": {
                 select: {
                     name: flightData.trip === 'oneway' ? 'One Way' : 'Round Trip'

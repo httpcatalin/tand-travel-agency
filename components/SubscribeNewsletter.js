@@ -6,13 +6,14 @@ import { Input } from "@/components/local-ui/input";
 import { isEmailValid } from "@/lib/utils";
 
 import { useState, useEffect } from "react";
-import { useFormState } from "react-dom";
+import { useActionState } from "react"; // Updated import
 import mailbox from "@/public/images/mailbox.svg";
 import { subscribeAction } from "@/lib/actions";
 import { SubmitBtn } from "./local-ui/SubmitBtn";
 import { translations } from "@/lib/translations";
+
 export function SubscribeNewsletter({ isSubscribed, lang = "en" }) {
-  const [state, dispatch] = useFormState(subscribeAction);
+  const [state, dispatch] = useActionState(subscribeAction); // Updated hook
   const [subscribeNewsletterDom, setSubscribeNewsletterDom] = useState(null);
   const [height, setHeight] = useState(0);
   const [error, setError] = useState();

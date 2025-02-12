@@ -8,27 +8,37 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 
 import { setStayForm } from "@/reduxStore/features/stayFormSlice";
 
 import { cn } from "@/lib/utils";
 import { translations } from "@/lib/translations";
-export function Combobox({ className, searchResult, name, lang = "en" }) {
+
+export function Combobox({ className, searchResult, propertyName, lang = "en" }) {
   const t = translations[lang]?.stays.form || translations.en.stays.form;
   const dispatch = useDispatch();
-
+  
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState(searchResult);
   const [filter, setFilter] = useState(items);
 
-  const value = useSelector((state) => state.stayForm.value.destination);
+  const stayFormData = useSelector((state) => state.stayForm.value); 
+  const value = propertyName === "country" ? useSelector((state) => state.stayForm.value.country) : useSelector((state) => state.stayForm.value.city) || "";
+
+  useEffect(() => {
+    dispatch(
+      setStayForm({
+        destination: stayFormData.city + ", " + stayFormData.country,
+      })
+    );
+  }, [stayFormData.city]);
 
   function handleChange(e) {
     const value = e.target.value;
     const filter = items.filter((item) =>
-      item.label.toLowerCase().includes(value.toLowerCase())
+      item.toLowerCase().includes(value.toLowerCase())
     );
     setFilter(filter);
   }
@@ -51,24 +61,31 @@ export function Combobox({ className, searchResult, name, lang = "en" }) {
         />
         <div className="h-80 overflow-auto">
           <div>
-            {Object.keys(filter).length < 1 ? (
+            {filter.length < 1 ? (
               <div className="p-4 text-center text-sm">{t.noResultsFound}</div>
             ) : (
-              filter.map((obj) => (
+              filter.map((item, index) => (
                 <div
-                  key={obj.label}
+                  key={index}
                   onClick={() => {
-                    dispatch(
-                      setStayForm({
-                        destination: obj.label === value ? "" : obj.label,
-                      })
-                    );
+                    if ( propertyName === "country" ){
+                      dispatch(
+                        setStayForm({
+                          country: item === value ? "" : item,
+                        })
+                      );
+                    } else {
+                      dispatch(
+                        setStayForm({
+                          city: item === value ? "" : item,
+                        })
+                      );
+                    }
                     setOpen(false);
                   }}
-                  obj={obj.label}
                   className="flex cursor-pointer items-center justify-between p-4 hover:bg-muted"
                 >
-                  <div className="text-sm">{obj.label}</div>
+                  <div className="text-sm">{item}</div>
                 </div>
               ))
             )}

@@ -16,7 +16,7 @@ export default async function HomePage({ searchParams }) {
   const lang =
     searchParams?.lang ||
     (["en", "ro", "ru"].includes(preferredLanguage) ? preferredLanguage : "en");
-
+  
   const t = translations[lang] || translations.en;
 
   return (
@@ -25,7 +25,7 @@ export default async function HomePage({ searchParams }) {
         <Nav
           type="home"
           className="absolute z-10 left-0 top-0"
-          currentLang={lang}
+          searchParams={searchParams}
         />
         <section className="flex relative h-[600px] w-full items-center bg-home-header">
           <Image

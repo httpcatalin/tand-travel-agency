@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import moment from "moment";
+import "moment/locale/ro";
+import "moment/locale/ru";
 import Image from "next/image";
 import { addDays } from "date-fns";
 import CVKHotel from "@/public/images/CVK-hotel.jpg";
@@ -10,8 +12,12 @@ import user from "@/public/icons/user.svg";
 import building from "@/public/icons/building.svg";
 import lineLeft from "@/public/icons/line-left.svg";
 import lineRight from "@/public/icons/line-right.svg";
+import { translations } from "@/lib/translations";
 
-export function HotelDetailsCard() {
+export function HotelDetailsCard({ lang="ro" }) {
+  const t = translations[lang]?.bookingPage || translations.en.bookingPage;
+  moment.locale(lang);
+
   const [stayData, setStayData] = useState(null);
   const [flightData, setFlightData] = useState(null);
   const currentLocation = "Chisinau";
@@ -48,7 +54,6 @@ export function HotelDetailsCard() {
           price: parseInt(price),
         };
 
-        console.log("New stayData:", newStayData);
         setStayData(newStayData);
         localStorage.setItem('stayBookingData', JSON.stringify(newStayData));
 
@@ -85,7 +90,6 @@ export function HotelDetailsCard() {
           adult: parseInt(adults2),
           children: parseInt(children2),
         }
-        console.log(newFlightData);
         setFlightData(newFlightData);
 
         localStorage.setItem('flightBookingData', JSON.stringify(newFlightData));
@@ -106,7 +110,7 @@ export function HotelDetailsCard() {
             </h3>
             {!isNaN(stayData?.price) && (
               <h3 className="font-tradeGothic text-base sm:text-lg md:text-xl lg:text-[1.5rem]">
-                Price: {stayData?.price}$
+                {t.price}: {stayData?.price}$
               </h3>
             )}
           </div>
@@ -122,11 +126,11 @@ export function HotelDetailsCard() {
               />
               <div>
                 <h3 className="mb-[8px] text-base sm:text-lg md:text-xl lg:text-[1.5rem] font-semibold">
-                  {stayData?.adults} Adults
+                  {stayData?.adults} {t.adults}
                 </h3>
                 <p className="flex items-center gap-3 text-xs sm:text-sm md:text-[0.875rem] font-medium">
                   <Image src={user} height={16} width={16} alt="user_icon" className="h-4 w-4" />
-                  <span>{stayData?.children} Children</span>
+                  <span>{stayData?.children} {t.children}</span>
                 </p>
               </div>
             </div>
@@ -137,7 +141,7 @@ export function HotelDetailsCard() {
               <p className="text-sm sm:text-base md:text-lg lg:text-[1.5rem] font-semibold">
                 {moment(stayData?.checkIn).format("ddd, MMM DD YYYY")}
               </p>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-600">Check-In</p>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600">{t.checkIn}</p>
             </div>
 
             <div className="flex items-center gap-4 sm:gap-6 md:gap-8 lg:gap-12">
@@ -168,7 +172,7 @@ export function HotelDetailsCard() {
               <p className="text-sm sm:text-base md:text-lg lg:text-[1.5rem] font-semibold">
                 {moment(stayData?.checkOut).format("ddd, MMM DD YYYY")}
               </p>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-600">Check-Out</p>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600">{t.checkOut}</p>
             </div>
           </div>
 
@@ -182,10 +186,10 @@ export function HotelDetailsCard() {
               {flightData.from}, {flightData.departureAirportCode} - {flightData.to}, {flightData.arrivalAirportCode}
             </h3>
             <h3 className="font-tradeGothic text-base sm:text-lg md:text-xl lg:text-[1.5rem]">
-              Class: {flightData.class.charAt(0).toUpperCase() + flightData.class.slice(1)}
+              {t.class}: {flightData.class.charAt(0).toUpperCase() + flightData.class.slice(1)}
             </h3>
             <h3 className="font-tradeGothic text-base sm:text-lg md:text-xl lg:text-[1.5rem]">
-              Trip: {flightData.trip.charAt(0).toUpperCase() + flightData.trip.slice(1)}
+              {t.trip}: {flightData.trip.charAt(0).toUpperCase() + flightData.trip.slice(1)}
             </h3>
           </div>
 
@@ -200,11 +204,11 @@ export function HotelDetailsCard() {
               />
               <div>
                 <h3 className="mb-[8px] text-base sm:text-lg md:text-xl lg:text-[1.5rem] font-semibold">
-                  {flightData.adult} Adults
+                  {flightData.adult} {t.adults}
                 </h3>
                 <p className="flex items-center gap-3 text-xs sm:text-sm md:text-[0.875rem] font-medium">
                   <Image src={user} height={16} width={16} alt="user_icon" className="h-4 w-4" />
-                  <span>{flightData.children} Children</span>
+                  <span>{flightData.children} {t.children}</span>
                 </p>
               </div>
             </div>
@@ -218,7 +222,7 @@ export function HotelDetailsCard() {
               <p className="text-sm sm:text-base md:text-lg lg:text-[1.5rem] font-semibold">
                 {moment(flightData.departDate).format("ddd, MMM DD YYYY")}
               </p>
-              <p className="text-xs sm:text-sm lg:text-base text-gray-600">Departure Date</p>
+              <p className="text-xs sm:text-sm lg:text-base text-gray-600">{t.departureDate}</p>
             </div>
 
             {flightData.trip === "roundtrip" && (
@@ -253,7 +257,7 @@ export function HotelDetailsCard() {
                   <p className="text-sm sm:text-base md:text-lg lg:text-[1.5rem] font-semibold">
                     {moment(flightData.returnDate).format("ddd, MMM DD YYYY")}
                   </p>
-                  <p className="text-xs sm:text-sm lg:text-base text-gray-600">Return Date</p>
+                  <p className="text-xs sm:text-sm lg:text-base text-gray-600">{t.returnDate}</p>
                 </div>
               </>
             )}

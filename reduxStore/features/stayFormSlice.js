@@ -2,6 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 import { addDays } from "date-fns";
 const today = new Date();
 const defaultValue = {
+  country: "",
+  city: "",
   destination: "",
   checkIn: new Date(today.getFullYear(), today.getMonth(), today.getDay()).toString(),
   checkOut: addDays(new Date(), 1).toString(),

@@ -21,11 +21,18 @@ export default async function PagesLayout({ children }) {
     path.startsWith(currentPathname)
   );
 
+  const referer = headers().get("referer") || "";
+
+  let langMatch = "en";
+  if ( referer.match(/[?&]lang=([^&]*)/) ){
+    langMatch = referer.match(/[?&]lang=([^&]*)/)[1];
+  }
+
   return (
     <>
-      {isNavAllowed && <Nav session={session} type="default" />}
+      <Nav session={session} type="default" language={langMatch} />
       {children}
-      {isNavAllowed && <Footer />}
+      <Footer lang={langMatch} />
     </>
   );
 }
