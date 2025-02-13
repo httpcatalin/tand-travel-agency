@@ -24,7 +24,7 @@ const languageOptions = {
   }
 };
 
-export function Nav({  className, type = "default", searchParams, language="" }) {
+export function Nav({ className, type = "default", searchParams, language = "" }) {
   const types = {
     home: {
       nav: "rounded-[24px] px-[32px] text-white backdrop-blur-[2px]",
@@ -35,18 +35,29 @@ export function Nav({  className, type = "default", searchParams, language="" })
       logoFill: "black",
     },
   };
-  
-  const [lang, setLang] = useState('en');
-  const [languageVerify, setLanguage] = useState(language === "" ? true : false);
-  
-    useEffect(() => {
-      if (languageVerify) {
-          if (searchParams?.value.split('"')[3]) {
-            setLang(searchParams.value.split('"')[3]);
-          }
-      } else setLang(language);
-      }, [searchParams]);
 
+  const [lang, setLang] = useState(() => {
+    if (typeof window !== 'undefined') {
+      const storedLang = localStorage.getItem('preferredLanguage');
+      if (storedLang) return storedLang;
+    }
+    return language || 'en';
+  });
+
+  const [languageVerify, setLanguage] = useState(language === "" ? true : false);
+
+  useEffect(() => {
+    if (languageVerify) {
+      const storedLang = localStorage.getItem('preferredLanguage');
+      if (!storedLang) {
+        if (searchParams?.value.split('"')[3]) {
+          const newLang = searchParams.value.split('"')[3];
+          setLang(newLang);
+          localStorage.setItem('preferredLanguage', newLang);
+        }
+      }
+    }
+  }, [searchParams, languageVerify]);
 
   const handleLanguageChange = (e) => {
     const form = e.target.form;
@@ -87,44 +98,44 @@ export function Nav({  className, type = "default", searchParams, language="" })
       </div>
 
       {languageVerify && (
-      <div className="relative">
-        <form method="get">
-          <select
-            name="lang"
-            value={lang}
-            onChange={handleLanguageChange}
-            className="appearance-none bg-transparent border border-current/20 rounded-md 
+        <div className="relative">
+          <form method="get">
+            <select
+              name="lang"
+              value={lang}
+              onChange={handleLanguageChange}
+              className="appearance-none bg-transparent border border-current/20 rounded-md 
                      px-2 lg:px-3 py-1.5 pr-7 lg:pr-8 text-xs lg:text-sm font-medium 
                      focus:outline-none focus:ring-2 focus:ring-primary/50
                      hover:border-current transition-colors duration-200"
-          >
-            {Object.entries(languageOptions).map(([code, language]) => (
-              <option
-                key={code}
-                value={code}
-                className="flex items-center gap-2 text-black bg-white"
-              >
+            >
+              {Object.entries(languageOptions).map(([code, language]) => (
+                <option
+                  key={code}
+                  value={code}
+                  className="flex items-center gap-2 text-black bg-white"
+                >
 
-                {language.code}
-              </option>
-            ))}
-          </select>
-          <svg
-            className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 h-3 w-3 lg:h-4 lg:w-4 pointer-events-none"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 9l-7 7-7-7"
-            />
-          </svg>
-        </form>
-      </div>
-      ) }
+                  {language.code}
+                </option>
+              ))}
+            </select>
+            <svg
+              className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 h-3 w-3 lg:h-4 lg:w-4 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
+          </form>
+        </div>
+      )}
     </nav>
   );
 }

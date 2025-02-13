@@ -64,15 +64,15 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const stayFormData = useSelector((state) => state.stayForm.value);  
-  
+  const stayFormData = useSelector((state) => state.stayForm.value);
+
   const countries = Object.keys(option);
   const cities = option[stayFormData.country];
 
   function handleSubmit(e) {
     e.preventDefault();
     console.log(stayFormData.destination);
-    
+
     if (searchForEmptyValues(stayFormData)) {
       alert(t.filRequired);
       return;
@@ -136,33 +136,10 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
       <input type="hidden" name="price" value={stayFormData.price} />
 
       <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_repeat(3,_1fr)]">
-        <div className="relative flex h-[48px] w-50% items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-            {t.country} <span className={"text-red-600"}>*</span>
-          </span>
-          <div className="p-2">
-            <Image
-              alt=""
-              width={24}
-              height={24}
-              src={"/icons/bed-filled.svg"}
-            />
-          </div>
-
-          <div className="h-full grow">
-            <Combobox
-              searchResult={countries}
-              lang={lang}
-              className={"h-full w-full"}
-              propertyName={"country"}
-            />
-          </div>
-        </div>
-
-        {cities && (
-          <div className="relative flex h-[48px] w-50% items-center gap-[4px] rounded-[8px] border-2 border-primary">
+        <div className={`grid gap-4 lg:col-span-2 xl:col-span-1 ${cities ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
+          <div className={`relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary ${!cities ? 'md:col-span-2' : ''}`}>
             <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
-              {t.city} <span className={"text-red-600"}>*</span>
+              {t.country} <span className={"text-red-600"}>*</span>
             </span>
             <div className="p-2">
               <Image
@@ -175,14 +152,39 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
 
             <div className="h-full grow">
               <Combobox
-                searchResult={cities}
+                searchResult={countries}
                 lang={lang}
                 className={"h-full w-full"}
-                propertyName={"city"}
+                propertyName={"country"}
               />
             </div>
           </div>
-        )}
+
+          {cities && (
+            <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
+              <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+                {t.city} <span className={"text-red-600"}>*</span>
+              </span>
+              <div className="p-2">
+                <Image
+                  alt=""
+                  width={24}
+                  height={24}
+                  src={"/icons/bed-filled.svg"}
+                />
+              </div>
+
+              <div className="h-full grow">
+                <Combobox
+                  searchResult={cities}
+                  lang={lang}
+                  className={"h-full w-full"}
+                  propertyName={"city"}
+                />
+              </div>
+            </div>
+          )}
+        </div>
 
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">

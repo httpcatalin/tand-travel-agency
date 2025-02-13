@@ -13,13 +13,14 @@ const mapContainerStyle = {
 
 const defaultMapOptions = {
   center: { lat: 47.031456, lng: 28.82168 },
-  zoom: 16.5,
+  zoom: 17,
   disableDefaultUI: false,
   zoomControl: false,
   mapTypeControl: false,
   scaleControl: false,
   streetViewControl: false,
   rotateControl: false,
+  defaultIcon: null,
   fullscreenControl: false
 };
 
@@ -47,19 +48,47 @@ const GoogleMapComponent = () => {
     );
   }
 
+  const markerIcon = {
+    path: "M12 0C7.58 0 4 3.58 4 8c0 5.76 7.44 14.58 7.75 14.95l.25.31.25-.31C12.56 22.58 20 13.76 20 8c0-4.42-3.58-8-8-8zm0 11c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z",
+    fillColor: "#FF0000",
+    fillOpacity: 1,
+    strokeWeight: 1,
+    strokeColor: "#FFFFFF",
+    scale: 1.7,
+    anchor: isLoaded ? new google.maps.Point(12, 24) : null,
+  };
+
+  const mapStyles = {
+    '.gm-style img[src="https://maps.gstatic.com/mapfiles/transparent.png"]': {
+      display: 'none !important'
+    }
+  };
+
+  // ... existing error and loading checks ...
+
   return (
-    <GoogleMap
-      mapContainerStyle={mapContainerStyle}
-      options={defaultMapOptions}
-    >
-      <MarkerF
-        position={defaultMapOptions.center}
-        title="Our Location"
-      />
-    </GoogleMap>
+    <div style={{ position: 'relative' }}>
+      <style jsx global>{`
+        .gm-style img[src="https://maps.gstatic.com/mapfiles/transparent.png"] {
+          display: none !important;
+        }
+      `}</style>
+      <GoogleMap
+        mapContainerStyle={mapContainerStyle}
+        options={{
+          ...defaultMapOptions
+        }}
+      >
+        <MarkerF
+          position={defaultMapOptions.center}
+          title="Our Location"
+          icon={markerIcon}
+          animation={google.maps.Animation.DROP}
+        />
+      </GoogleMap>
+    </div>
   );
 };
-
 
 export function QuickLinks({ lang = 'en' }) {
   const t = translations[lang]?.footer.quickLinks || translations.en.footer.quickLinks;
