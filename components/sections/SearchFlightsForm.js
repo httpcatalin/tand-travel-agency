@@ -166,6 +166,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           </button>
 
           <SearchAirportDropdown
+            lang={lang}
             name="to"
             codeName="arrivalAirportCode"
             airports={airports}

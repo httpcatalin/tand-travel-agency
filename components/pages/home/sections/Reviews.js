@@ -22,12 +22,13 @@ export function Reviews({ lang = 'en' }) {
       </div>
       <div className="flex flex-col h-[600px] gap-[16px] overflow-auto pb-5 md:flex-row md:h-auto md:gap-[30px] lg:gap-[40px] golobe-scrollbar">
         {reviews.map((review) => {
-          const { id, comment, describedComment, rate, reviewer, imgSrc } =
+          const { id, link, describedComment, rate, reviewer, imgSrc } =
             review;
 
           return (
             <ReviewsCard
               key={id}
+              link={link}
               describedComment={describedComment}
               rate={rate}
               reviewer={reviewer}

@@ -1,49 +1,51 @@
 //will be deleted and replaced with db data
 import google from "@/public/icons/google.svg";
+import photo1 from "@/public/images/review1.jpg";
+import photo3 from "@/public/images/review3.jpg";
 export const reviews = [
   {
     id: 1,
-    comment: "“A real sense of community, nurtured”",
+    link: "https://g.co/kgs/7sJte8H",
     describedComment:
-      "Really appreciate the help and support from the staff during these tough times. Shoutout to Katie for helping me always, even when I was out of the country. And always available when needed.",
+      "Mulțumim echipei TAND Travel care au fost extrem de binevoitori, eficienti și ne-au propus exact ce ne doream pentru vacanță. Au fost mereu la legătura și ne-au dat cele mai bune recomandări, știind ca am mers prima data intr-o țara straina. La următoarea vacanta vom merge tot cu ei!",
     rate: 5,
     reviewer: {
-      name: "Olga",
-      worksAs: "Weave Studios - Kai Tak",
+      name: "Laura Andros",
+      worksAs: "",
       worksAt: "Google",
       icon: google,
     },
     imgSrc:
-      "https://images.unsplash.com/photo-1535025287458-e3badca98021?q=80&w=1173&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      photo1,
   },
   {
     id: 2,
-    comment: "“The facilities are superb. Clean, slick, bright.”",
+    link: "https://g.co/kgs/fxnnVW5",
     describedComment:
-      "Really appreciate the help and support from the staff during these tough times. Shoutout to Katie for helping me always, even when I was out of the country. And always available when needed. Really appreciate the help and support from the staff during these tough times. Shoutout to Katie for helping me always, even when I was out of the country. And always available when needed. Really appreciate the help and support from the staff during these tough times. Shoutout to Katie for helping me always, even when I was out of the country. And always available when needed.",
+      "Mulțumim Tandtravel pentru vacanta !",
     rate: 5,
     reviewer: {
-      name: "Olga",
-      worksAs: "Weave Studios - Olympic",
+      name: "Liliana Cibuc",
+      worksAs: "",
       worksAt: "Google",
       icon: google,
     },
     imgSrc:
-      "https://images.unsplash.com/photo-1525220964737-6c299398493c?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      photo3,
   },
   {
     id: 3,
-    comment: "“A real sense of community, nurtured”",
+    link: "https://g.co/kgs/CeXbw2W",
     describedComment:
-      "Really appreciate the help and support from the staff during these tough times. Shoutout to Katie for helping me always, even when I was out of the country. And always available when needed.",
+      "Great company to travel with ! Had a great experience two times in row, will choose them next year too !",
     rate: 5,
     reviewer: {
-      name: "Olga",
-      worksAs: "Weave Studios - Kai Tak",
+      name: "Anthony Grossu",
+      worksAs: "",
       worksAt: "Google",
       icon: google,
     },
     imgSrc:
-      "https://images.unsplash.com/photo-1517094629229-f5e0c2f88440?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "",  
   },
 ];

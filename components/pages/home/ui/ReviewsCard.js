@@ -3,9 +3,10 @@ import { generateStars } from "@/lib/functions_client";
 import { useRef } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import Link  from "next/link";
 
 export function ReviewsCard({
-  comment,
+  link,
   describedComment,
   rate,
   reviewer,
@@ -28,9 +29,6 @@ export function ReviewsCard({
         }}
       >
         <div>
-          <h3 className="mb-[16px] font-tradeGothic text-1.5rem font-bold text-secondary">
-            {comment}
-          </h3>
           <p
             ref={ref}
             className="mb-[12px] line-clamp-2 text-[0.875rem] font-medium text-secondary opacity-50"
@@ -58,21 +56,28 @@ export function ReviewsCard({
             <p className="mb-[12px] text-[0.75rem] font-medium text-secondary/50">
               {reviewer.worksAs}
             </p>
-            <div className="flex items-center gap-[8px] mb-4">
-              <Image src={reviewer.icon} alt="" width={24} height={24} />
-              <span className="font-tradeGothic text-[0.75rem] font-bold text-secondary/40">
-                {reviewer.worksAt}
-              </span>
-            </div>
+            <Link href={link}>
+              <div className="flex items-center gap-[8px] mb-4">
+                <Image src={reviewer.icon} alt="" width={24} height={24} />
+                <span className="font-tradeGothic text-[0.75rem] font-bold text-secondary/40">
+                  {reviewer.worksAt}
+                </span>
+              </div>
+            </Link>
           </div>
         </div>
-        <Image
-          src={imgSrc}
-          width={500}
-          height={500}
-          alt=""
-          className="object-center w-full h-[200px] object-cover rounded-[8px]"
-        />
+        { imgSrc && 
+          (
+            <Image
+            src={imgSrc}
+            width={500}
+            height={500}
+            alt=""
+            className="object-center w-full h-[200px] object-cover rounded-[8px]"
+            />
+          )
+        }
+        
       </div>
       {/* fake shadow */}
       <div className="absolute left-[16px] top-[16px] z-[1] h-[584px] w-[calc(100%-16px)] rounded-[20px] bg-[#8dd3bb]/[.4] md:w-[350px] lg:left-[20px] lg:top-[20px] lg:w-[425px]"></div>

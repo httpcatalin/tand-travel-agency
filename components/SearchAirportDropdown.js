@@ -65,13 +65,13 @@ export function SearchAirportDropdown({
             ) : (
               filter.map((obj) => {
                 if (
-                  flightFormData[oppositeCodeName[codeName]] === obj.iataCode
+                  flightFormData[oppositeCodeName[codeName]] === obj.iata_code
                 ) {
                   return;
                 }
                 return (
                   <div
-                    key={obj.iataCode}
+                    key={obj.iata_code}
                     onClick={() => {
                       const data =
                         obj.city + ", " + obj.country === flightFormData[name]
@@ -81,7 +81,7 @@ export function SearchAirportDropdown({
                             }
                           : {
                               [name]: obj?.city + ", " + obj?.country,
-                              [codeName]: obj?.iataCode,
+                              [codeName]: obj?.iata_code,
                             };
 
                       dispatch(setFlightForm(data));
@@ -91,7 +91,7 @@ export function SearchAirportDropdown({
                     className="cursor-pointer p-4 hover:bg-muted"
                   >
                     <div className="text-sm">
-                      {obj.city + ", " + obj.country} {"(" + obj.iataCode + ")"}
+                      {obj.city + ", " + obj.country} {"(" + obj.iata_code + ")"}
                     </div>
                     <small className="text-xs opacity-40 font-semibold">
                       {obj.name}

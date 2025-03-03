@@ -1,10 +1,9 @@
 'use client';
 
-import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import Link from "next/link";
 import { useState, useEffect } from 'react';
+import logo from "@/public/images/logo.png";
 
 const languageOptions = {
   en: {
@@ -89,12 +88,18 @@ export function Nav({ className, type = "default", searchParams, language = "" }
           href="tel:+37369123456"
           className="text-xs lg:text-sm font-medium hover:text-primary transition-colors duration-200"
         >
-          +373 69 123 456
+          +373 60 003 050
         </a>
       </div>
 
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <Logo className="h-[36px] w-fit" otherFill={types[type].logoFill} />
+          <Image 
+            src={logo} 
+            alt="Company Logo"
+            width={85}
+            height={40}
+            priority
+          />
       </div>
 
       {languageVerify && (

@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Logo } from "@/components/Logo";
+import logo from "@/public/images/logo.png"
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { translations } from "@/lib/translations";
 const mapContainerStyle = {
@@ -96,10 +96,13 @@ export function QuickLinks({ lang = 'en' }) {
     <section className=" overflow-hidden relative z-10 mx-auto mb-10 w-[90%] md:w-[85%] lg:w-[75%] max-w-7xl px-4 md:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:gap-[140px]">
         <div className="flex-shrink-0 w-full lg:w-auto">
-          <Logo
-            className="mb-6 h-8 md:h-10 w-fit"
-            worldFill="white"
-            otherFill="black"
+          <Image 
+            src={logo} 
+            alt="Company Logo"
+            width={100}
+            height={50}
+            priority
+            className="mb-6"
           />
 
           <div className="space-y-4 md:space-y-6 text-secondary">
