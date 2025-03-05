@@ -11,9 +11,9 @@ import airplane from "@/public/icons/airplane-filled.svg";
 import bed from "@/public/icons/bed-filled.svg";
 import { translations } from "@/lib/translations";
 
-export function SearchFlightsAndStaysFormShortcut({ className, lang = 'en' }) {
+export function SearchFlightsAndStaysFormShortcut({ className, lang = '' }) {
 
-  const t = translations[lang]?.search || translations.en.search;
+  const t = translations[lang]?.search;
 
   return (
     <div className={cn("rounded-[8px] bg-white px-3 2xsm:px-[32px] py-[16px] shadow-lg md:rounded-[16px]", className)}>

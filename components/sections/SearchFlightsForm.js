@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";  // Added useState
 import { useSelector, useDispatch } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,31 @@ import swap from "@/public/icons/swap.svg";
 import { translations } from "@/lib/translations";
 
 function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
-  const t = translations[lang]?.flights.form || translations.en.flights.form;
+  // State to store the actual language to use
+  const [currentLang, setCurrentLang] = useState(lang);
+  
+  // On mount, check localStorage for language preference
+  useEffect(() => {
+    try {
+      const storedLang = localStorage.getItem('preferredLanguage');
+      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
+        // Only update if localStorage has a valid language
+        setCurrentLang(storedLang);
+        
+        // Optionally, update URL silently to match localStorage
+        if (storedLang !== lang) {
+          const url = new URL(window.location.href);
+          url.searchParams.set('lang', storedLang);
+          window.history.replaceState({}, '', url.toString());
+        }
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+    }
+  }, [lang]);
+  
+  // Use currentLang (from localStorage if available) instead of lang prop
+  const t = translations[currentLang]?.flights.form || translations.en.flights.form;
 
   const getClassName = (classType) => {
     if (!classType) return "";
@@ -68,6 +92,15 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
       alert(t.validation.maxChildren);
       return;
     }
+    
+    // Add the current language to the form submission
+    const form = e.target;
+    const langInput = document.createElement('input');
+    langInput.type = 'hidden';
+    langInput.name = 'lang';
+    langInput.value = currentLang;
+    form.appendChild(langInput);
+    
     e.target.submit();
   };
 
@@ -87,6 +120,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
     const children = parseInt(flightFormData.children) || 0;
     return adults + children;
   };
+  
   return (
     <form
       id="flightform"
@@ -94,6 +128,9 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
       action="/hotels/123/book"
       onSubmit={handleSubmit}
     >
+      {/* Add hidden language input */}
+      <input type="hidden" name="lang" value={currentLang} />
+      
       <input type="hidden" name="from" value={flightFormData.from} />
       <input type="hidden" name="to" value={flightFormData.to} />
       <input
@@ -133,7 +170,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           </span>
 
           <SearchAirportDropdown
-            lang={lang}
+            lang={currentLang}
             name="from"
             codeName="departureAirportCode"
             airports={airports}
@@ -166,7 +203,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           </button>
 
           <SearchAirportDropdown
-            lang={lang}
+            lang={currentLang}
             name="to"
             codeName="arrivalAirportCode"
             airports={airports}
@@ -178,7 +215,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
             {t.trip} <span className="text-red-600">{t.required}</span>
           </span>
-          <SelectTrip lang={lang} />
+          <SelectTrip lang={currentLang} />
         </div>
 
         <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
@@ -192,7 +229,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
           <DatePickerWithRange
             name="depart&return"
             className="h-full w-full border-0"
-            lang={lang}
+            lang={currentLang}
           />
         </div>
 
@@ -223,7 +260,7 @@ function SearchFlightsForm({ searchParams = {}, lang = "en" }) {
                   <div className="border-2 border-primary rounded-lg">
                     <SelectClass
                       flightClass={getClassName(flightFormData.class)}
-                      lang={lang}
+                      lang={currentLang}
                     />
                   </div>
                 </CardContent>

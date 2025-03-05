@@ -5,6 +5,8 @@ import Image from "next/image";
 import logo from "@/public/images/logo.png"
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { translations } from "@/lib/translations";
+
+
 const mapContainerStyle = {
   height: "400px",
   width: "100%",
@@ -14,16 +16,22 @@ const mapContainerStyle = {
 const defaultMapOptions = {
   center: { lat: 47.031456, lng: 28.82168 },
   zoom: 17,
-  disableDefaultUI: false,
+  disableDefaultUI: true,
   zoomControl: false,
   mapTypeControl: false,
   scaleControl: false,
   streetViewControl: false,
   rotateControl: false,
-  defaultIcon: null,
-  fullscreenControl: false
+  fullscreenControl: false,
+  scrollwheel: false,
+  gestureHandling: 'none',
+  styles: [
+    {
+      featureType: "all",
+      elementType: "labels.icon",
+    }
+  ]
 };
-
 const GoogleMapComponent = () => {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
@@ -63,9 +71,6 @@ const GoogleMapComponent = () => {
       display: 'none !important'
     }
   };
-
-  // ... existing error and loading checks ...
-
   return (
     <div style={{ position: 'relative' }}>
       <style jsx global>{`
@@ -96,8 +101,8 @@ export function QuickLinks({ lang = 'en' }) {
     <section className=" overflow-hidden relative z-10 mx-auto mb-10 w-[90%] md:w-[85%] lg:w-[75%] max-w-7xl px-4 md:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:gap-[140px]">
         <div className="flex-shrink-0 w-full lg:w-auto">
-          <Image 
-            src={logo} 
+          <Image
+            src={logo}
             alt="Company Logo"
             width={100}
             height={50}

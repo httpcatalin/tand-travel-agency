@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import logo from "@/public/images/logo.png";
 
 const languageOptions = {
@@ -23,7 +24,10 @@ const languageOptions = {
   }
 };
 
-export function Nav({ className, type = "default", searchParams, language = "" }) {
+export function Nav({ className, type = "default", searchParams = {}, language = "" }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  
   const types = {
     home: {
       nav: "rounded-[24px] px-[32px] text-white backdrop-blur-[2px]",
@@ -35,32 +39,50 @@ export function Nav({ className, type = "default", searchParams, language = "" }
     },
   };
 
+
   const [lang, setLang] = useState(() => {
+    
+    if (language) return language;
+    
+
     if (typeof window !== 'undefined') {
       const storedLang = localStorage.getItem('preferredLanguage');
-      if (storedLang) return storedLang;
-    }
-    return language || 'en';
-  });
-
-  const [languageVerify, setLanguage] = useState(language === "" ? true : false);
-
-  useEffect(() => {
-    if (languageVerify) {
-      const storedLang = localStorage.getItem('preferredLanguage');
-      if (!storedLang) {
-        if (searchParams?.value.split('"')[3]) {
-          const newLang = searchParams.value.split('"')[3];
-          setLang(newLang);
-          localStorage.setItem('preferredLanguage', newLang);
-        }
+      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
+        return storedLang;
       }
     }
-  }, [searchParams, languageVerify]);
+    
+    return 'en';
+  });
+
+  
+  useEffect(() => {
+
+    if (searchParams?.lang && ["en", "ro", "ru"].includes(searchParams.lang)) {
+      setLang(searchParams.lang);
+      localStorage.setItem('preferredLanguage', searchParams.lang);
+    } 
+    
+    else if (typeof window !== 'undefined') {
+      const storedLang = localStorage.getItem('preferredLanguage');
+      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
+        if (lang !== storedLang) {
+          setLang(storedLang);
+        }
+      } else {
+        // If no localStorage, set default and save it
+        localStorage.setItem('preferredLanguage', lang);
+      }
+    }
+  }, [searchParams, lang]);
 
   const handleLanguageChange = (e) => {
-    const form = e.target.form;
-    if (form) form.submit();
+    const newLang = e.target.value;
+    setLang(newLang);
+    localStorage.setItem('preferredLanguage', newLang);
+    const params = new URLSearchParams(window.location.search);
+    params.set('lang', newLang);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (
@@ -93,54 +115,49 @@ export function Nav({ className, type = "default", searchParams, language = "" }
       </div>
 
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-          <Image 
-            src={logo} 
-            alt="Company Logo"
-            width={85}
-            height={40}
-            priority
-          />
+        <Image
+          src={logo}
+          alt="Company Logo"
+          width={150}
+          height={60}
+          priority
+        />
       </div>
 
-      {languageVerify && (
-        <div className="relative">
-          <form method="get">
-            <select
-              name="lang"
-              value={lang}
-              onChange={handleLanguageChange}
-              className="appearance-none bg-transparent border border-current/20 rounded-md 
-                     px-2 lg:px-3 py-1.5 pr-7 lg:pr-8 text-xs lg:text-sm font-medium 
-                     focus:outline-none focus:ring-2 focus:ring-primary/50
-                     hover:border-current transition-colors duration-200"
+      <div className="relative">
+        <select
+          name="lang"
+          value={lang}
+          onChange={handleLanguageChange}
+          className="appearance-none bg-transparent border border-current/20 rounded-md 
+                px-2 lg:px-3 py-1.5 pr-7 lg:pr-8 text-xs lg:text-sm font-medium 
+                focus:outline-none focus:ring-2 focus:ring-primary/50
+                hover:border-current transition-colors duration-200"
+        >
+          {Object.entries(languageOptions).map(([code, language]) => (
+            <option
+              key={code}
+              value={code}
+              className="flex items-center gap-2 text-black bg-white"
             >
-              {Object.entries(languageOptions).map(([code, language]) => (
-                <option
-                  key={code}
-                  value={code}
-                  className="flex items-center gap-2 text-black bg-white"
-                >
-
-                  {language.code}
-                </option>
-              ))}
-            </select>
-            <svg
-              className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 h-3 w-3 lg:h-4 lg:w-4 pointer-events-none"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </form>
-        </div>
-      )}
+              {language.code}
+            </option>
+          ))}
+        </select>
+        <svg
+          className="absolute right-1.5 lg:right-2 top-1/2 -translate-y-1/2 h-3 w-3 lg:h-4 lg:w-4 pointer-events-none"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </div>
     </nav>
   );
 }

@@ -15,9 +15,9 @@ export default async function HomePage({ searchParams }) {
   const preferredLanguage = acceptLanguage.split(",")[0].split("-")[0];
   const lang =
     searchParams?.lang ||
-    (["en", "ro", "ru"].includes(preferredLanguage) ? preferredLanguage : "en");
-  
-  const t = translations[lang] || translations.en;
+    (["en", "ro", "ru"].includes(preferredLanguage) ? preferredLanguage : "");
+
+  const t = translations[lang];
 
   return (
     <>
