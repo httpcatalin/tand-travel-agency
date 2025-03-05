@@ -13,32 +13,42 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { translations } from "@/lib/translations";
-export function SelectClass({ lang = "en" }) {
-  const t = translations[lang]?.flights.form || translations.en.flights.form;
+import { useLanguage } from "@/app/context/LanguageProvider";
+
+export function SelectClass({ flightClass }) {
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.flights.form : {};
   const dispatch = useDispatch();
-  const flightClass = useSelector((state) => state.flightForm.value.class);
+
+
+  const getClassLabel = (classValue) => {
+    return t.classLabels?.[classValue] || classValue;
+  };
+
+  const currentFlightForm = useSelector((state) => state.flightForm.value);
+  const selectedClass = flightClass || currentFlightForm.class || "economy";
 
   return (
     <SelectShadcn
-      value={flightClass}
+      value={selectedClass}
       onValueChange={(value) => {
         dispatch(setFlightForm({ class: value }));
       }}
     >
-      <input value={flightClass} name="flightClass" type="hidden" />
+      <input value={selectedClass} name="flightClass" type="hidden" />
       <SelectTrigger className="focus:ring-transparent focus:ring-offset-0 bg-white hover:bg-slate-500/10 w-full h-full border-0">
-        <SelectValue
-          placeholder={t.classLabels?.[flightClass] || flightClass}
-        />
+        <SelectValue>
+          {getClassLabel(selectedClass)}
+        </SelectValue>
       </SelectTrigger>
       <SelectContent className={"bg-primary"}>
         <SelectGroup>
-          <SelectItem value="economy">{t.classLabels?.economy}</SelectItem>
+          <SelectItem value="economy">{getClassLabel("economy")}</SelectItem>
           <SelectItem value="premium_economy">
-            {t.classLabels?.premium_economy}
+            {getClassLabel("premium_economy")}
           </SelectItem>
-          <SelectItem value="business">{t.classLabels?.business}</SelectItem>
-          <SelectItem value="first">{t.classLabels?.first}</SelectItem>
+          <SelectItem value="business">{getClassLabel("business")}</SelectItem>
+          <SelectItem value="first">{getClassLabel("first")}</SelectItem>
         </SelectGroup>
       </SelectContent>
     </SelectShadcn>

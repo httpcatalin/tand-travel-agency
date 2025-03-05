@@ -10,7 +10,7 @@ import mongoose from "mongoose";
 import dynamic from "next/dynamic";
 import openGraph from "./opengraph-image.jpg";
 import SetCookies from "./_setCookies";
-
+import { LanguageProviderWrapper } from '@/components/LanguageProviderWrapper/LanguageProviderWrapper';
 
 const monse = Montserrat({
   subsets: ["latin"],
@@ -38,20 +38,20 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${tradegothic.variable} ${monse.variable}`}>
       <body className={monse.className}>
-       
-          <StoreProvider>
-            <SessionProvider>
-              <div className="max-w-[1440px] mx-auto">
 
-                {children}
-              </div>
-            </SessionProvider>
-          </StoreProvider>
-          <NextTopLoader showSpinner={false} color="hsl(159, 44%, 69%)" />
-          <Toaster className="bg-secondary" />
-          <SetCookies />
-        
+        <StoreProvider>
+          <SessionProvider>
+            <div className="max-w-[1440px] mx-auto">
+              <LanguageProviderWrapper>
+                {children}</LanguageProviderWrapper>
+            </div>
+          </SessionProvider>
+        </StoreProvider>
+        <NextTopLoader showSpinner={false} color="hsl(159, 44%, 69%)" />
+        <Toaster className="bg-secondary" />
+        <SetCookies />
+
       </body>
-    </html>
+    </html >
   );
 }

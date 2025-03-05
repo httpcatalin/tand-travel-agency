@@ -12,8 +12,8 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { translations } from "@/lib/translations";
+import { useLanguage } from '@/app/context/LanguageProvider';
 export function SearchAirportDropdown({
-  lang = "en",
   className,
   airports,
   name,
@@ -21,8 +21,8 @@ export function SearchAirportDropdown({
 }) {
   const dispatch = useDispatch();
   const flightFormData = useSelector((state) => state.flightForm.value);
-  const t = translations[lang]?.flights.form || translations.en.flights.form;
-
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.flights.form : {};
   const oppositeCodeName = {
     arrivalAirportCode: "departureAirportCode",
     departureAirportCode: "arrivalAirportCode",

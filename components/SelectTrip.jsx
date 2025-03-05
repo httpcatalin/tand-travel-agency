@@ -14,12 +14,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { addDays } from "date-fns";
 import { translations } from "@/lib/translations";
-
-export function SelectTrip({ lang = "en" }) {
+import { useLanguage } from "@/app/context/LanguageProvider";
+export function SelectTrip() {
   const dispatch = useDispatch();
   const flightForm = useSelector((state) => state.flightForm.value);
-  const t = translations[lang]?.flights.form || translations.en.flights.form;
-
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.flights.form : {};
   const getTripType = (type) => {
     const tripType = t?.tripTypes?.[type];
     return typeof tripType === "string" ? tripType : type;

@@ -2,10 +2,8 @@
 
 import { cn } from "@/lib/utils";
 import Image from "next/image";
-import { useState, useEffect } from 'react';
-import { useRouter, usePathname } from 'next/navigation';
 import logo from "@/public/images/logo.png";
-
+import { useLanguage } from '../../app/context/LanguageProvider'
 const languageOptions = {
   en: {
     code: 'EN',
@@ -24,10 +22,8 @@ const languageOptions = {
   }
 };
 
-export function Nav({ className, type = "default", searchParams = {}, language = "" }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  
+export function Nav({ className, type = "default" }) {
+  const { language, setLanguage } = useLanguage();
   const types = {
     home: {
       nav: "rounded-[24px] px-[32px] text-white backdrop-blur-[2px]",
@@ -39,50 +35,10 @@ export function Nav({ className, type = "default", searchParams = {}, language =
     },
   };
 
-
-  const [lang, setLang] = useState(() => {
-    
-    if (language) return language;
-    
-
-    if (typeof window !== 'undefined') {
-      const storedLang = localStorage.getItem('preferredLanguage');
-      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
-        return storedLang;
-      }
-    }
-    
-    return 'en';
-  });
-
-  
-  useEffect(() => {
-
-    if (searchParams?.lang && ["en", "ro", "ru"].includes(searchParams.lang)) {
-      setLang(searchParams.lang);
-      localStorage.setItem('preferredLanguage', searchParams.lang);
-    } 
-    
-    else if (typeof window !== 'undefined') {
-      const storedLang = localStorage.getItem('preferredLanguage');
-      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
-        if (lang !== storedLang) {
-          setLang(storedLang);
-        }
-      } else {
-        // If no localStorage, set default and save it
-        localStorage.setItem('preferredLanguage', lang);
-      }
-    }
-  }, [searchParams, lang]);
-
   const handleLanguageChange = (e) => {
     const newLang = e.target.value;
-    setLang(newLang);
-    localStorage.setItem('preferredLanguage', newLang);
-    const params = new URLSearchParams(window.location.search);
-    params.set('lang', newLang);
-    router.push(`${pathname}?${params.toString()}`);
+    setLanguage(newLang);
+    window.location.reload();
   };
 
   return (
@@ -127,7 +83,7 @@ export function Nav({ className, type = "default", searchParams = {}, language =
       <div className="relative">
         <select
           name="lang"
-          value={lang}
+          value={language}
           onChange={handleLanguageChange}
           className="appearance-none bg-transparent border border-current/20 rounded-md 
                 px-2 lg:px-3 py-1.5 pr-7 lg:pr-8 text-xs lg:text-sm font-medium 

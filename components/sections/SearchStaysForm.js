@@ -21,15 +21,29 @@ import { Input } from "@//components/ui/input";
 
 import { useEffect, useState } from "react";
 
-import { useSelector, useDispatch, dispatch } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { setStayForm } from "@/reduxStore/features/stayFormSlice";
 
 import { addDays } from "date-fns";
 
 import { translations } from "@/lib/translations";
 
-function SearchStaysForm({ searchParams = {}, lang = "en" }) {
-  const t = translations[lang]?.stays.form || translations.en.stays.form;
+function SearchStaysForm({ searchParams = {} }) {
+  // Get language from localStorage
+  const [currentLang, setCurrentLang] = useState("en");
+  
+  useEffect(() => {
+    try {
+      const storedLang = localStorage.getItem('preferredLanguage');
+      if (storedLang && ["en", "ro", "ru"].includes(storedLang)) {
+        setCurrentLang(storedLang);
+      }
+    } catch (error) {
+      console.error("Error accessing localStorage:", error);
+    }
+  }, []);
+  
+  const t = translations[currentLang]?.stays.form || translations.en.stays.form;
   const dispatch = useDispatch();
   const nightsOptions = Array.from({ length: 14 }, (_, i) =>
     (i + 1).toString()
@@ -40,7 +54,6 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
   const childrenOptions = Array.from({ length: 5 }, (_, i) => i.toString());
 
   let staySearchParamsObj = {};
-  staySearchParamsObj += { lang: lang };
   if (Object.keys(searchParams).length > 0) {
     for (const [key, value] of Object.entries(searchParams)) {
       staySearchParamsObj[key] = value;
@@ -71,7 +84,6 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    console.log(stayFormData.destination);
 
     if (searchForEmptyValues(stayFormData)) {
       alert(t.filRequired);
@@ -123,7 +135,6 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
         name="destination"
         value={stayFormData.destination}
       />
-      <input type="hidden" name="lang" value={lang} />
 
       <input type="hidden" name="checkIn" value={stayFormData.checkIn} />
 
@@ -153,7 +164,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
             <div className="h-full grow">
               <Combobox
                 searchResult={countries}
-                lang={lang}
+                lang={currentLang}
                 className={"h-full w-full"}
                 propertyName={"country"}
               />
@@ -177,7 +188,7 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
               <div className="h-full grow">
                 <Combobox
                   searchResult={cities}
-                  lang={lang}
+                  lang={currentLang}
                   className={"h-full w-full"}
                   propertyName={"city"}
                 />
@@ -222,25 +233,6 @@ function SearchStaysForm({ searchParams = {}, lang = "en" }) {
             {t.nights} <span className={"text-red-600"}>*</span>
           </span>
           <div className="h-full flex items-center grow">
-            {/* <DatePicker
-              date={stayFormData.checkOut}
-              setDate={(date) => {
-                if (date == undefined) {
-                  dispatch(
-                    setStayForm({
-                      checkOut: "",
-                    })
-                  );
-                } else {
-                  dispatch(
-                    setStayForm({
-                      checkOut: date.toString(),
-                    })
-                  );
-                }
-              }}
-              className={"h-full w-full rounded-[8px]"}
-            /> */}
             <select
               value={stayFormData.nights}
               onChange={(e) => {

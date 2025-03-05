@@ -27,32 +27,6 @@ export function DatePickerWithRange({ name, className, lang = "en" }) {
     to: flightForm.returnDate ? new Date(flightForm.returnDate) : "",
   };
 
-  useEffect(() => {
-    async function getFlightDate() {
-      const res = await fetch(
-        process.env.NEXT_PUBLIC_BASE_URL +
-        "/api/flights?lastAvailableFlightDate=&firstAvailableFlightDate=",
-        {
-          next: { revalidate: 300 },
-        }
-      );
-      const data = await res.json();
-      dispatch(
-        setFlightForm({
-          firstAvailableFlightDate: new Date(
-            data.firstAvailableFlightDate
-          ).toString(),
-          lastAvailableFlightDate: new Date(
-            data.lastAvailableFlightDate
-          ).toString(),
-        })
-      );
-    }
-
-    getFlightDate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const date = flightForm.departDate ? new Date(flightForm.departDate) : "";
 
   function setDate(date) {

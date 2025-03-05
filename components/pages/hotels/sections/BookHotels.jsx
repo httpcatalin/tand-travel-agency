@@ -5,6 +5,7 @@ import moment from "moment";
 import { translations } from "@/lib/translations";
 
 export function BookHotels({ lang = 'en' }) {
+  
   const t = translations[lang]?.hotels || translations.en.hotels;
 
   const bestDeals = {
