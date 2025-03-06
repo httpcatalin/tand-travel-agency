@@ -5,7 +5,7 @@ import Image from "next/image";
 import logo from "@/public/images/logo.png"
 import { GoogleMap, useLoadScript, MarkerF } from "@react-google-maps/api";
 import { translations } from "@/lib/translations";
-
+import {useLanguage} from "@/app/context/LanguageProvider"
 
 const mapContainerStyle = {
   height: "400px",
@@ -96,7 +96,8 @@ const GoogleMapComponent = () => {
 };
 
 export function QuickLinks({ lang = 'en' }) {
-  const t = translations[lang]?.footer.quickLinks || translations.en.footer.quickLinks;
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.footer.quickLinks : {}; 
   return (
     <section className=" overflow-hidden relative z-10 mx-auto mb-10 w-[90%] md:w-[85%] lg:w-[75%] max-w-7xl px-4 md:px-6 lg:px-8">
       <div className="flex flex-col lg:flex-row gap-6 md:gap-8 lg:gap-[140px]">
@@ -121,9 +122,9 @@ export function QuickLinks({ lang = 'en' }) {
                 </a>
               </div>
               <div className="text-xs md:text-sm text-gray-600 pl-7 space-y-1">
-                <p>{t.workingHours.weekdays}</p>
-                <p>{t.workingHours.saturday}</p>
-                <p>{t.workingHours.sunday}</p>
+                <p>{t?.workingHours?.weekdays}</p>
+                <p>{t?.workingHours?.saturday}</p>
+                <p>{t?.workingHours?.sunday}</p>
               </div>
             </div>
 

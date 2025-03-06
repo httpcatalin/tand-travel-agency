@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import Link from "next/link";
 
 export async function Footer({ lang = 'en' }) {
+  
   return (
     <footer className="relative pb-5">
       <SubscribeNewsletter lang={lang} />

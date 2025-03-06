@@ -11,8 +11,8 @@ import mailbox from "@/public/images/mailbox.svg";
 import { subscribeAction } from "@/lib/actions";
 import { SubmitBtn } from "./local-ui/SubmitBtn";
 import { translations } from "@/lib/translations";
-
-export function SubscribeNewsletter({ isSubscribed, lang = "en" }) {
+import {useLanguage} from "@/app/context/LanguageProvider"
+export function SubscribeNewsletter({ isSubscribed }) {
   const [state, dispatch] = useActionState(subscribeAction); // Updated hook
   const [subscribeNewsletterDom, setSubscribeNewsletterDom] = useState(null);
   const [height, setHeight] = useState(0);
@@ -66,8 +66,8 @@ export function SubscribeNewsletter({ isSubscribed, lang = "en" }) {
       ? setError("please enter a valid email")
       : setError();
   }
-  const t = translations[lang]?.footer.subscribe || translations.en.footer.subscribe;
-
+const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.footer.subscribe : {};
   return (
     <>
       <section

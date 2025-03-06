@@ -3,11 +3,11 @@ import { BookingCard } from "@/components/BookingCard";
 import { SectionTitle } from "@/components/SectionTitle";
 import moment from "moment";
 import { translations } from "@/lib/translations";
-
+import {useLanguage} from "@/app/context/LanguageProvider"
 export function BookHotels({ lang = 'en' }) {
   
-  const t = translations[lang]?.hotels || translations.en.hotels;
-
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.hotels : {};
   const bestDeals = {
     destination1: {
       destination: "Melbourne",

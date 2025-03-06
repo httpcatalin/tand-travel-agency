@@ -13,10 +13,12 @@ import building from "@/public/icons/building.svg";
 import lineLeft from "@/public/icons/line-left.svg";
 import lineRight from "@/public/icons/line-right.svg";
 import { translations } from "@/lib/translations";
+import { useLanguage } from '@/app/context/LanguageProvider';
 
-export function HotelDetailsCard({ lang="ro" }) {
-  const t = translations[lang]?.bookingPage || translations.en.bookingPage;
-  moment.locale(lang);
+export function HotelDetailsCard({  }) {
+  const { language, translations, isLoaded} = useLanguage();
+  const t = isLoaded ? translations.bookingPage : {};
+  moment.locale(language);
 
   const [stayData, setStayData] = useState(null);
   const [flightData, setFlightData] = useState(null);

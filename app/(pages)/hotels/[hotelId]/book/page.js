@@ -8,10 +8,11 @@ import { HotelDetailsCard } from "@/components/pages/hotels.book/HotelDetailsCar
 import axios from 'axios';
 import { FaSpinner } from 'react-icons/fa';
 import { translations } from '@/lib/translations';
+import { useLanguage } from '@/app/context/LanguageProvider';
 
 export default function BookingPage({ searchParams={} }) {
-  const [lang, setLang] = useState('en');
-  const t = translations[lang]?.bookingPage || translations.en.bookingPage;
+  const { translations, isLoaded } = useLanguage();
+  const t = isLoaded ? translations.bookingPage : {};
   
   const router = useRouter();
   const {
@@ -28,11 +29,6 @@ export default function BookingPage({ searchParams={} }) {
     flightData: null
   });
 
-  useEffect(() => {
-      if (searchParams?.lang) {
-        setLang(searchParams.lang);
-      }
-  }, [searchParams]);
 
   useEffect(() => {
     const stayData = localStorage.getItem('stayBookingData');
@@ -168,9 +164,7 @@ export default function BookingPage({ searchParams={} }) {
       <BreadcrumbUI />
       <div className="mt-[30px] flex gap-[20px] max-lg:flex-col lg:gap-[30px] xl:gap-[40px]">
         <div>
-          <HotelDetailsCard
-            lang={lang}
-          />
+          <HotelDetailsCard />
         </div>
 
         <div className="h-min grow rounded-[12px] bg-white p-6 shadow-lg">
@@ -180,7 +174,7 @@ export default function BookingPage({ searchParams={} }) {
               <label className="block text-sm font-medium mb-2">{t.fullName}</label>
               <input
                 {...register("fullName", {
-                  required: (t.requiredErrors.fullName),
+                  required: (t?.requiredErrors?.fullName),
                   minLength: { value: 2, message: "Name must be at least 2 characters" }
                 })}
                 className="w-full px-4 py-2 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50"
@@ -193,7 +187,7 @@ export default function BookingPage({ searchParams={} }) {
               <label className="block text-sm font-medium mb-2">{t.email}</label>
               <input
                 {...register("email", {
-                  required: (t.requiredErrors.email),
+                  required: (t.requiredErrors?.email),
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                     message: "Invalid email address"
@@ -210,7 +204,7 @@ export default function BookingPage({ searchParams={} }) {
               <label className="block text-sm font-medium mb-2">{t.phone}</label>
               <input
                 {...register("phone", {
-                  required: (t.requiredErrors.phone),
+                  required: (t.requiredErrors?.phone),
                   pattern: {
                     value: /^\+?[1-9]\d{1,14}$/,
                     message: "Invalid phone number"

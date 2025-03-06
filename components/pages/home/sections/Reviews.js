@@ -1,12 +1,14 @@
+'use client';
 import { SectionTitle } from "@/components/SectionTitle";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ReviewsCard } from "@/components/pages/home/ui/ReviewsCard";
 import { reviews } from "@/data/reviews";
 import { translations } from "@/lib/translations";
-
+import {useLanguage} from "@/app/context/LanguageProvider"
 export function Reviews({ lang = 'en' }) {
-  const t = translations[lang]?.reviews || translations.en.reviews;
+    const { translations, isLoaded } = useLanguage();
+    const t = isLoaded ? translations.reviews : {};
   return (
     <section className="mx-auto mb-[80px]">
       <div className="mb-[20px] flex items-center justify-between max-md:flex-col max-md:gap-[16px] md:mb-[40px]">

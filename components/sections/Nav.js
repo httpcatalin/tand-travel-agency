@@ -3,6 +3,7 @@
 import { cn } from "@/lib/utils";
 import Image from "next/image";
 import logo from "@/public/images/logo.png";
+import Link from 'next/link';
 import { useLanguage } from '../../app/context/LanguageProvider'
 const languageOptions = {
   en: {
@@ -48,36 +49,41 @@ export function Nav({ className, type = "default" }) {
       className
     )}>
       <div className="flex items-center gap-1.5 lg:gap-2">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="h-4 w-4 lg:h-5 lg:w-5"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
-          />
-        </svg>
         <a
-          href="tel:+37369123456"
-          className="text-xs lg:text-sm font-medium hover:text-primary transition-colors duration-200"
+          href="tel:+37360003050"
+          className="flex items-center gap-1.5 lg:gap-2 hover:text-primary transition-colors duration-200"
         >
-          +373 60 003 050
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-4 w-4 lg:h-5 lg:w-5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+            />
+          </svg>
+          <span className="hidden md:block text-xs lg:text-sm font-medium">
+            +373 60 003 050
+          </span>
         </a>
       </div>
 
       <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-        <Image
-          src={logo}
-          alt="Company Logo"
-          width={150}
-          height={60}
-          priority
-        />
+        <Link href="/">
+          <Image
+            src={logo}
+            alt="Company Logo"
+            width={120}
+            height={50}
+            className="w-[80px] md:w-[100px] lg:w-[120px] h-auto"
+            priority
+          />
+        </Link>
       </div>
 
       <div className="relative">
