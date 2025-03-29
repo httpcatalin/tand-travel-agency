@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";  // Added useState
+import { useEffect, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setFlightForm } from "@/reduxStore/features/flightFormSlice";
 import { Button } from "@/components/ui/button";
@@ -22,8 +22,7 @@ import { translations } from "@/lib/translations";
 import { useLanguage } from "@/app/context/LanguageProvider";
 
 function SearchFlightsForm({ searchParams = {} }) {
-
-  const { translations, isLoaded } = useLanguage();
+  const { translations, isLoaded, language } = useLanguage();
   const t = isLoaded ? translations.flights.form : {};
 
   const getClassName = (classType) => {
@@ -72,13 +71,10 @@ function SearchFlightsForm({ searchParams = {} }) {
       return;
     }
 
-    // Add the current language to the form submission
-    const form = e.target;
-    const langInput = document.createElement('input');
-    langInput.type = 'hidden';
-    langInput.name = 'lang';
-    langInput.value = currentLang;
-    form.appendChild(langInput);
+    const langInput = e.target.querySelector('input[name="lang"]');
+    if (langInput) {
+      langInput.value = language || 'en';
+    }
 
     e.target.submit();
   };
@@ -107,8 +103,7 @@ function SearchFlightsForm({ searchParams = {} }) {
       action="/hotels/123/book"
       onSubmit={handleSubmit}
     >
-      {/* Add hidden language input */}
-      <input type="hidden" name="lang" />
+      <input type="hidden" name="lang" value={language || 'en'} />
 
       <input type="hidden" name="from" value={flightFormData.from} />
       <input type="hidden" name="to" value={flightFormData.to} />
@@ -149,7 +144,6 @@ function SearchFlightsForm({ searchParams = {} }) {
           </span>
 
           <SearchAirportDropdown
-
             name="from"
             codeName="departureAirportCode"
             airports={airports}
@@ -236,7 +230,6 @@ function SearchFlightsForm({ searchParams = {} }) {
                   <div className="border-2 border-primary rounded-lg">
                     <SelectClass
                       flightClass={getClassName(flightFormData.class)}
-
                     />
                   </div>
                 </CardContent>
