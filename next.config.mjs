@@ -1,6 +1,6 @@
 const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-eval' 'unsafe-inline' https://maps.googleapis.com;
+    script-src 'self' 'unsafe-inline' https://maps.googleapis.com;
     style-src 'self' 'unsafe-inline';
     img-src 'self' blob: data: https://*.unsplash.com https://*.airplane-pictures.net https://i.pravatar.cc https://*.googleapis.com https://platform-lookaside.fbsbx.com https://lh3.googleusercontent.com;
     font-src 'self';
@@ -79,7 +79,45 @@ const nextConfig = {
     return [{
       source: "/:path*",
       headers: [
-        { key: "Content-Security-Policy", value: cspHeader.replace(/\n/g, "") },
+        {
+          key: "Content-Security-Policy",
+          value: `
+          default-src 'self';
+          script-src 'self' 'unsafe-eval' 'unsafe-inline' 
+            https://maps.googleapis.com 
+            https://www.google.com 
+            https://www.gstatic.com 
+            https://apis.google.com 
+            https://identitytoolkit.googleapis.com;
+          style-src 'self' 'unsafe-inline' 
+            https://fonts.googleapis.com;
+          font-src 'self' 
+            https://fonts.gstatic.com;
+          img-src 'self' data: blob:
+            https://*.googleapis.com 
+            https://*.gstatic.com 
+            https://*.unsplash.com 
+            https://*.airplane-pictures.net 
+            https://i.pravatar.cc 
+            https://platform-lookaside.fbsbx.com 
+            https://lh3.googleusercontent.com
+            https://purecatamphetamine.github.io
+            https://countryflagsapi.com;
+          connect-src 'self' 
+            https://www.google.com 
+            https://identitytoolkit.googleapis.com 
+            https://*.firebaseio.com 
+            https://*.googleapis.com 
+            https://securetoken.googleapis.com;
+          frame-src 'self' 
+            https://www.google.com 
+            https://accounts.google.com 
+            https://tand-travel.firebaseapp.com 
+            https://*.firebaseapp.com;
+          worker-src 'self' blob:;
+          child-src 'self' blob:;
+        `.replace(/\n/g, ' ').trim()
+        },
         { key: "X-Content-Type-Options", value: "nosniff" },
         { key: "X-Frame-Options", value: "DENY" },
         { key: "X-XSS-Protection", value: "1; mode=block" },

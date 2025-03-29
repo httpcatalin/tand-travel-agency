@@ -108,7 +108,7 @@ function SearchFlightsForm({ searchParams = {} }) {
       onSubmit={handleSubmit}
     >
       {/* Add hidden language input */}
-      {/* <input type="hidden" name="lang" value={currentLang} /> */}
+      <input type="hidden" name="lang" />
 
       <input type="hidden" name="from" value={flightFormData.from} />
       <input type="hidden" name="to" value={flightFormData.to} />
