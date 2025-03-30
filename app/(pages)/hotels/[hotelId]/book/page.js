@@ -257,34 +257,43 @@ export default function BookingPage({ searchParams = {} }) {
 
     setIsSubmitting(true);
     setIsLoading(true);
+
     try {
-      if (bookingData.flightData) {
-        bookingData.flightData = {
-          ...bookingData.flightData,
-          departDate: new Date(bookingData.flightData.departDate).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
-          returnDate: bookingData.flightData.returnDate ?
-            new Date(bookingData.flightData.returnDate).toLocaleDateString("ro-MD").split(".").reverse().join("-") : null,
-          Trip: bookingData.flightData.trip || 'Round Trip',
-          from: bookingData.flightData.from || `${bookingData.flightData.departureAirportCode}`,
-          to: bookingData.flightData.to || `${bookingData.flightData.arrivalAirportCode}`,
-          class: bookingData.flightData.class || 'economy',
-          adult: parseInt(bookingData.flightData.adult) || 0,
-          children: parseInt(bookingData.flightData.children) || 0
+      const stayDataStr = localStorage.getItem('stayBookingData');
+      const flightDataStr = localStorage.getItem('flightBookingData');
+
+      let stayData = stayDataStr ? JSON.parse(stayDataStr) : null;
+      let flightData = flightDataStr ? JSON.parse(flightDataStr) : null;
+
+      if (flightData) {
+        flightData = {
+          ...flightData,
+          departDate: new Date(flightData.departDate).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
+          returnDate: flightData.returnDate ?
+            new Date(flightData.returnDate).toLocaleDateString("ro-MD").split(".").reverse().join("-") : null,
+          Trip: flightData.trip || 'Round Trip',
+          from: flightData.from || `${flightData.departureAirportCode}`,
+          to: flightData.to || `${flightData.arrivalAirportCode}`,
+          class: flightData.class || 'economy',
+          adult: parseInt(flightData.adult) || 0,
+          children: parseInt(flightData.children) || 0
         };
       }
 
-      if (bookingData.stayData) {
-        bookingData.stayData = {
-          ...bookingData.stayData,
-          checkIn: new Date(bookingData.stayData.checkIn).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
-          checkOut: new Date(bookingData.stayData.checkOut).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
-          nights: parseInt(bookingData.stayData.nights) || 1,
-          adults: parseInt(bookingData.stayData.adults) || 1,
-          children: parseInt(bookingData.stayData.children) || 0
+      if (stayData) {
+        stayData = {
+          ...stayData,
+          checkIn: new Date(stayData.checkIn).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
+          checkOut: new Date(stayData.checkOut).toLocaleDateString("ro-MD").split(".").reverse().join("-"),
+          nights: parseInt(stayData.nights) || 1,
+          adults: parseInt(stayData.adults) || 1,
+          children: parseInt(stayData.children) || 0
         };
       }
 
-      const { data: userData } = await axios.get('/api/test');
+
+      const userResponse = await axios.get('/api/test');
+      const userData = userResponse.data;
 
       let existingUser = null;
       let flightRequests = [];
@@ -293,7 +302,7 @@ export default function BookingPage({ searchParams = {} }) {
       if (userData.data) {
         existingUser = userData.data.find(user =>
           user.properties.Email.email === data.email &&
-          user.properties['Phone Number'].phone_number === data.phone
+          user.properties['Phone Number'].phone_number === phoneNumber
         );
 
         if (existingUser) {
@@ -302,73 +311,63 @@ export default function BookingPage({ searchParams = {} }) {
         }
       }
 
+
       if (!existingUser) {
-        const { data: newUser } = await axios.post('/api/test', {
+        const newUserResponse = await axios.post('/api/test', {
           name: data.fullName,
           email: data.email,
-          phone: data.phone,
+          phone: phoneNumber,
           flightRequests: [],
           hotelRequests: []
         });
-        existingUser = newUser;
-        existingUser.id = newUser.data.id;
+
+        existingUser = newUserResponse.data;
+        existingUser.id = newUserResponse.data.data.id;
       }
 
-      let stayResponse = null;
-      if (bookingData.stayData) {
-        try {
-          localStorage.removeItem('flightBookingData');
-          const { data: stayDataResponse } = await axios.post('/api/stays', {
-            ...bookingData.stayData,
-            userId: existingUser.id,
-            databaseId: "19080eea390f805b8cd8f0ea17825ee2",
-            status: "Active"
-          });
-          stayResponse = stayDataResponse.data;
-          localStorage.removeItem('stayBookingData');
-          localStorage.removeItem('flightBookingData');
-          hotelRequests.push(stayResponse.id);
-        } catch (error) {
-          console.error('Stay API error:', error.response?.data || error.message);
-          throw error;
-        }
-        localStorage.removeItem('stayBookingData');
-        localStorage.removeItem('flightBookingData');
-      }
 
-      if (bookingData.flightData) {
-        try {
-          localStorage.removeItem('stayBookingData');
-          const { data: flightResponse } = await axios.post('/api/flight', {
-            userId: existingUser.id,
-            databaseId: "19080eea390f80318a79eb0dab0b15f9",
-            ...bookingData.flightData,
-            status: "Active"
-          });
-          flightRequests.push(flightResponse.data.id);
-          localStorage.removeItem('stayBookingData');
-          localStorage.removeItem('flightBookingData');
-        } catch (flightData) {
-          console.error('Flight API error:', flightData.response?.data || flightData.message);
-          throw flightData;
-        }
-      }
-
-      try {
-        await axios.put(`/api/test/${existingUser.id}`, {
-          flightRequests: flightRequests,
-          hotelRequests: hotelRequests
+      if (stayData) {
+        const stayResponse = await axios.post('/api/stays', {
+          ...stayData,
+          userId: existingUser.id,
+          databaseId: "19080eea390f805b8cd8f0ea17825ee2",
+          status: "Active"
         });
-      } catch (updateError) {
-        console.error('User update error:', updateError.response?.data || updateError.message);
-        throw updateError;
+
+        hotelRequests.push(stayResponse.data.data.id);
       }
+
+
+      if (flightData) {
+        const flightResponse = await axios.post('/api/flight', {
+          userId: existingUser.id,
+          databaseId: "19080eea390f80318a79eb0dab0b15f9",
+          ...flightData,
+          status: "Active"
+        });
+
+        flightRequests.push(flightResponse.data.data.id);
+      }
+
+
+      await axios.put(`/api/test/${existingUser.id}`, {
+        flightRequests: flightRequests,
+        hotelRequests: hotelRequests
+      });
+
+
+      localStorage.removeItem('stayBookingData');
+      localStorage.removeItem('flightBookingData');
 
       setSubmitStatus('success');
-      router.push('/');
+
+
+      setTimeout(() => {
+        router.push('/');
+      }, 1500);
 
     } catch (error) {
-      console.error('Submission error:', error.response?.data || error.message);
+      console.error('Submission error:', error);
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
