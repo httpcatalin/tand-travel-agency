@@ -215,7 +215,7 @@ function SearchFlightsForm({ searchParams = {} }) {
               asChild
               className="h-full w-full justify-start rounded-lg"
             >
-              <Button variant="ghost" className="font-normal text-xs sm:text-base line-clamp-1">
+              <Button variant="ghost" className="font-normal text-sm sm:text-base line-clamp-1">
                 {`${totalPassenger()} ${totalPassenger() === 1
                   ? t.passengers.person
                   : t.passengers.people

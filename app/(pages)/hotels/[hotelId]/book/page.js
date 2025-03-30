@@ -114,7 +114,7 @@ export default function BookingPage({ searchParams = {} }) {
         console.log('reCAPTCHA verified');
       },
       'expired-callback': () => {
-        setVerificationError('reCAPTCHA expired, please try again');
+        setVerificationError(t.errors?.recaptchaFailed || 'reCAPTCHA expired, please try again');
       }
     });
 
@@ -129,12 +129,15 @@ export default function BookingPage({ searchParams = {} }) {
     }
 
     if (!phoneNumber) {
-      setVerificationError('Please enter a valid phone number');
+      setVerificationError(t.errors?.invalidPhone || 'Please enter a valid phone number');
       return;
     }
 
+
     if (cooldown) {
-      setVerificationError(`Please wait ${cooldownTime} seconds before trying again.`);
+      const waitMessage = t.errors?.waitBeforeTrying?.replace('{seconds}', cooldownTime) ||
+        `Please wait ${cooldownTime} seconds before trying again.`;
+      setVerificationError(waitMessage);
       return;
     }
 
@@ -143,7 +146,7 @@ export default function BookingPage({ searchParams = {} }) {
 
       const recaptchaVerifier = setupRecaptcha();
 
-      console.log("Sending verification to:", phoneNumber);
+      // console.log("Sending verification to:", phoneNumber);
       const confirmation = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
 
       setConfirmationResult(confirmation);
@@ -156,19 +159,19 @@ export default function BookingPage({ searchParams = {} }) {
       if (error.code === 'auth/too-many-requests') {
         setCooldown(true);
         setCooldownTime(60);
-        setVerificationError('Too many verification attempts. Please wait 60 seconds before trying again.');
+        setVerificationError(t.errors?.tooManyAttempts || 'Too many verification attempts. Please wait 60 seconds before trying again.');
       } else if (error.code === 'auth/invalid-phone-number') {
-        setVerificationError('Invalid phone number format. Please check and try again.');
+        setVerificationError(t.errors?.invalidPhoneFormat || 'Invalid phone number format. Please check and try again.');
       } else if (error.code === 'auth/missing-verification-code') {
-        setVerificationError('Verification code is required.');
+        setVerificationError(t.errors?.codeRequired || 'Verification code is required.');
       } else if (error.code === 'auth/invalid-verification-code') {
-        setVerificationError('Invalid verification code. Please check and try again.');
+        setVerificationError(t.errors?.invalidCode || 'Invalid verification code. Please check and try again.');
       } else if (error.code === 'auth/captcha-check-failed') {
-        setVerificationError('reCAPTCHA verification failed. Please refresh and try again.');
+        setVerificationError(t.errors?.recaptchaFailed || 'reCAPTCHA verification failed. Please refresh and try again.');
       } else if (error.code === 'auth/quota-exceeded') {
-        setVerificationError('Service quota exceeded. Please try again later.');
+        setVerificationError(t.errors?.quotaExceeded || 'Service quota exceeded. Please try again later.');
       } else {
-        setVerificationError(`Failed to send code: ${error.message}`);
+        setVerificationError(`${t.errors?.failedToSend || 'Failed to send code:'} ${error.message}`);
       }
 
       if (window.recaptchaVerifier) {
@@ -220,7 +223,7 @@ export default function BookingPage({ searchParams = {} }) {
     }
 
     if (!verificationCode || verificationCode.length !== 6) {
-      setVerificationError('Please enter the 6-digit verification code');
+      setVerificationError(t.errors?.enter6Digits || 'Please enter the 6-digit verification code');
       return;
     }
 
@@ -228,7 +231,7 @@ export default function BookingPage({ searchParams = {} }) {
       setIsLoading(true);
 
       if (!confirmationResult) {
-        throw new Error('Verification session expired. Please request a new code.');
+        throw new Error(t.errors?.sessionExpired || 'Verification session expired. Please request a new code.');
       }
 
       await confirmationResult.confirm(verificationCode);
@@ -238,11 +241,11 @@ export default function BookingPage({ searchParams = {} }) {
       console.error('Error verifying code:', error);
 
       if (error.code === 'auth/invalid-verification-code') {
-        setVerificationError('The verification code you entered is invalid. Please try again.');
+        setVerificationError(t.errors?.enterInvalidCode || 'The verification code you entered is invalid. Please try again.');
       } else if (error.code === 'auth/code-expired') {
-        setVerificationError('This verification code has expired. Please request a new one.');
+        setVerificationError(t.errors?.codeExpired || 'This verification code has expired. Please request a new one.');
       } else {
-        setVerificationError(`Failed to verify code: ${error.message}`);
+        setVerificationError(`${t.errors?.failedToVerify || 'Failed to verify code:'} ${error.message}`);
       }
     } finally {
       setIsLoading(false);
@@ -251,7 +254,7 @@ export default function BookingPage({ searchParams = {} }) {
 
   const onSubmit = async (data) => {
     if (verificationStep !== 'verified' && !isDev) {
-      setVerificationError('Please verify your phone number before submitting');
+      setVerificationError(t.verification?.pleaseVerify || 'Please verify your phone number before submitting');
       return;
     }
 
@@ -482,7 +485,10 @@ export default function BookingPage({ searchParams = {} }) {
                     <input
                       {...register("fullName", {
                         required: (t?.requiredErrors?.fullName || 'Full name is required'),
-                        minLength: { value: 2, message: "Name must be at least 2 characters" }
+                        minLength: {
+                          value: 2,
+                          message: t.validation?.nameMinLength || "Name must be at least 2 characters"
+                        }
                       })}
                       className="w-full px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200"
                       placeholder="John Doe"
@@ -515,7 +521,7 @@ export default function BookingPage({ searchParams = {} }) {
                         required: (t.requiredErrors?.email || 'Email is required'),
                         pattern: {
                           value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "Invalid email address"
+                          message: t.validation?.invalidEmail || "Invalid email address"
                         }
                       })}
                       type="email"
@@ -577,12 +583,12 @@ export default function BookingPage({ searchParams = {} }) {
                           {isLoading ? (
                             <div className="flex items-center">
                               <FaSpinner className="animate-spin mr-2" />
-                              Sending...
+                              {t.verification?.sending || 'Sending...'}
                             </div>
                           ) : cooldown ? (
-                            `Try again in ${cooldownTime}s`
+                            `${t.verification?.waitTime || 'Try again in'} ${cooldownTime}${t.verification?.seconds || 's'}`
                           ) : (
-                            'Send Verification Code'
+                            t.verification?.sendCode || 'Send Verification Code'
                           )}
                         </motion.button>
 
@@ -592,7 +598,7 @@ export default function BookingPage({ searchParams = {} }) {
                           className="text-xs text-blue-500 italic mt-2 text-center"
                         >
                           <FaInfoCircle className="inline mr-1" />
-                          You'll receive a verification code on your phone
+                          {t.verification?.infoMessage || "You'll receive a verification code on your phone"}
                         </motion.div>
                       </motion.div>
                     )}
@@ -614,18 +620,18 @@ export default function BookingPage({ searchParams = {} }) {
                         >
                           <p className="text-green-600 flex items-center">
                             <FaCheck className="mr-2" />
-                            Verification code sent to {phoneNumber}
+                            {t.verification?.codeSent || 'Verification code sent to'} {phoneNumber}
                           </p>
                         </motion.div>
 
                         <div className="flex justify-between mb-2">
-                          <p className="text-sm text-gray-600">Enter the 6-digit code</p>
+                          <p className="text-sm text-gray-600">{t.verification?.enterCode || 'Enter the 6-digit code'}</p>
                           <button
                             type="button"
                             onClick={() => setVerificationStep('initial')}
                             className="text-sm text-primary hover:underline"
                           >
-                            Change number
+                            {t.verification?.changeNumber || 'Change number'}
                           </button>
                         </div>
 
@@ -654,12 +660,13 @@ export default function BookingPage({ searchParams = {} }) {
                           whileTap={!isLoading && verificationCode.length === 6 ? { scale: 0.98 } : {}}
                           className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition-all duration-200 disabled:opacity-50 flex items-center justify-center"
                         >
+
                           {isLoading ? (
                             <div className="flex items-center">
                               <FaSpinner className="animate-spin mr-2" />
-                              Verifying...
+                              {t.verification?.verifying || 'Verifying...'}
                             </div>
-                          ) : ('Verify Code')}
+                          ) : (t.verification?.verifyCode || 'Verify Code')}
                         </motion.button>
                       </motion.div>
                     )}
@@ -686,7 +693,7 @@ export default function BookingPage({ searchParams = {} }) {
                           <FaCheck className="text-green-600" />
                         </motion.div>
                         <div>
-                          <p className="font-medium">Phone number verified</p>
+                          <p className="font-medium">{t.verification?.phoneVerified || 'Phone number verified'}</p>
                           <p className="text-sm">{phoneNumber}</p>
                         </div>
                       </motion.div>
