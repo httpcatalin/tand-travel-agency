@@ -47,7 +47,7 @@ export function SearchAirportDropdown({
       <PopoverTrigger className={className} asChild>
         <Button
           variant="ghost"
-          className="justify-start line-clamp-1 font-normal text-xs sm:text-base py-2 h-auto min-h-[40px]"
+          className="justify-start line-clamp-1 font-normal text-sm sm:text-base py-2 h-auto min-h-[40px]"
         >
           {flightFormData[name] === "" ? t.select : flightFormData[name]}
         </Button>

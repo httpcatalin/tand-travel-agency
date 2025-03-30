@@ -139,7 +139,7 @@ function SearchFlightsForm({ searchParams = {} }) {
 
       <div className="my-[15px] sm:my-[20px] grid gap-[16px] sm:gap-[24px] grid-cols-1 lg:grid-cols-2 xl:grid-cols-[2fr_1fr_repeat(2,_2fr)]">
         <div className="relative flex min-h-[56px] sm:min-h-[48px] w-full flex-col sm:flex-row items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-base sm:text-base leading-none">
             {t.from} <span className="text-red-600">{t.required}</span> - {t.to}{" "}
             <span className="text-red-600">{t.required}</span>
           </span>
@@ -185,14 +185,14 @@ function SearchFlightsForm({ searchParams = {} }) {
         </div>
 
         <div className="relative rounded-[8px] min-h-[56px] sm:min-h-[48px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-base sm:text-base leading-none">
             {t.trip} <span className="text-red-600">{t.required}</span>
           </span>
           <SelectTrip />
         </div>
 
         <div className="relative flex min-h-[56px] sm:min-h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-base sm:text-base leading-none">
             {t.depart} <span className="text-red-600">{t.required}</span> -{" "}
             {t.return}{" "}
             {flightFormData.trip === "roundtrip" && (
@@ -206,7 +206,7 @@ function SearchFlightsForm({ searchParams = {} }) {
         </div>
 
         <div className="relative flex min-h-[56px] sm:min-h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-base sm:text-base leading-none">
             {t.passenger} <span className="text-red-600">{t.required}</span> -{" "}
             {t.class} <span className="text-red-600">{t.required}</span>
           </span>
