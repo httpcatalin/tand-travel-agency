@@ -5,8 +5,26 @@ const notion = new Client({ auth: process.env.NOTION_API_KEY })
 
 export async function PUT(req, { params }) {
     try {
+        if (!params || !params.id) {
+            return NextResponse.json({ 
+                success: false, 
+                error: "Missing route parameter: id" 
+            }, { status: 400 });
+        }
+        
         const { id } = params;
-        const { flightRequests, hotelRequests } = await req.json();
+        
+        let flightRequests, hotelRequests;
+        try {
+            const body = await req.json();
+            flightRequests = body.flightRequests || [];
+            hotelRequests = body.hotelRequests || [];
+        } catch (parseError) {
+            return NextResponse.json({ 
+                success: false, 
+                error: "Invalid request body: " + parseError.message 
+            }, { status: 400 });
+        }
 
         const response = await notion.pages.update({
             page_id: id,
@@ -22,7 +40,10 @@ export async function PUT(req, { params }) {
 
         return NextResponse.json({ success: true, data: response });
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({ success: false, error: error.message }, { status: 500 });
+        console.error('Error updating Notion page:', error);
+        return NextResponse.json({ 
+            success: false, 
+            error: error.message || "Internal server error" 
+        }, { status: 500 });
     }
 }

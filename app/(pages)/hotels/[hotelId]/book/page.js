@@ -21,6 +21,7 @@ export default function BookingPage({ searchParams = {} }) {
   const { translations, isLoaded } = useLanguage();
   const t = isLoaded ? translations.bookingPage : {};
   const recaptchaContainerRef = useRef(null);
+  const isDev = process.env.NEXT_PUBLIC_APP_MODE === 'dev';
 
   const router = useRouter();
   const {
@@ -36,7 +37,7 @@ export default function BookingPage({ searchParams = {} }) {
   const [contentLoaded, setContentLoaded] = useState(false);
 
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationStep, setVerificationStep] = useState('initial');
+  const [verificationStep, setVerificationStep] = useState(isDev ? 'verified' : 'initial');
   const [verificationError, setVerificationError] = useState('');
   const [digits, setDigits] = useState(['', '', '', '', '', '']);
   const [verificationCode, setVerificationCode] = useState('');
@@ -62,6 +63,11 @@ export default function BookingPage({ searchParams = {} }) {
       setContentLoaded(true);
     }, 1000);
 
+    if (isDev && phoneNumber === '') {
+      setPhoneNumber('+37368123456');
+      setValue('phone', '+37368123456');
+    }
+
     return () => {
       if (window.recaptchaVerifier) {
         try {
@@ -72,7 +78,7 @@ export default function BookingPage({ searchParams = {} }) {
         }
       }
     };
-  }, []);
+  }, [isDev, setValue]);
 
   useEffect(() => {
     let interval;
@@ -116,6 +122,12 @@ export default function BookingPage({ searchParams = {} }) {
   };
 
   const handleSendVerificationCode = async () => {
+    if (isDev) {
+      setVerificationStep('verified');
+      setValue('phone', phoneNumber);
+      return;
+    }
+
     if (!phoneNumber) {
       setVerificationError('Please enter a valid phone number');
       return;
@@ -202,6 +214,11 @@ export default function BookingPage({ searchParams = {} }) {
   };
 
   const handleVerifyCode = async () => {
+    if (isDev) {
+      setVerificationStep('verified');
+      return;
+    }
+
     if (!verificationCode || verificationCode.length !== 6) {
       setVerificationError('Please enter the 6-digit verification code');
       return;
@@ -233,7 +250,7 @@ export default function BookingPage({ searchParams = {} }) {
   };
 
   const onSubmit = async (data) => {
-    if (verificationStep !== 'verified') {
+    if (verificationStep !== 'verified' && !isDev) {
       setVerificationError('Please verify your phone number before submitting');
       return;
     }
@@ -315,6 +332,8 @@ export default function BookingPage({ searchParams = {} }) {
           console.error('Stay API error:', error.response?.data || error.message);
           throw error;
         }
+        localStorage.removeItem('stayBookingData');
+        localStorage.removeItem('flightBookingData');
       }
 
       if (bookingData.flightData) {
@@ -323,7 +342,8 @@ export default function BookingPage({ searchParams = {} }) {
           const { data: flightResponse } = await axios.post('/api/flight', {
             userId: existingUser.id,
             databaseId: "19080eea390f80318a79eb0dab0b15f9",
-            ...bookingData.flightData
+            ...bookingData.flightData,
+            status: "Active"
           });
           flightRequests.push(flightResponse.data.id);
           localStorage.removeItem('stayBookingData');
@@ -360,8 +380,6 @@ export default function BookingPage({ searchParams = {} }) {
 
   return (
     <main className="mx-auto mb-[80px] mt-[40px] w-[95%] text-secondary">
-      {/* <BreadcrumbUI /> */}
-
       <div className={`mt-[30px] flex gap-[20px] max-lg:flex-col lg:gap-[30px] xl:gap-[40px]`} style={{
         transition: 'opacity 0.1s ease-in-out',
         opacity: showSkeletons ? 0.8 : 1
@@ -695,9 +713,9 @@ export default function BookingPage({ searchParams = {} }) {
 
                 <motion.button
                   type="submit"
-                  disabled={isSubmitting || verificationStep !== 'verified'}
-                  whileHover={!isSubmitting && verificationStep === 'verified' ? { scale: 1.02 } : {}}
-                  whileTap={!isSubmitting && verificationStep === 'verified' ? { scale: 0.98 } : {}}
+                  disabled={isSubmitting || (verificationStep !== 'verified' && !isDev)}
+                  whileHover={!isSubmitting && (verificationStep === 'verified' || isDev) ? { scale: 1.02 } : {}}
+                  whileTap={!isSubmitting && (verificationStep === 'verified' || isDev) ? { scale: 0.98 } : {}}
                   className="w-full bg-primary text-white py-3 rounded-md hover:bg-primary/90 transition-all duration-300 disabled:opacity-50 flex items-center justify-center mt-6"
                 >
                   {isSubmitting ? (
