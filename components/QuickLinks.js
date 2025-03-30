@@ -8,6 +8,20 @@ import { useLanguage } from "@/app/context/LanguageProvider";
 const GoogleMapComponent = () => {
   const latitude = 47.031456;
   const longitude = 28.82168;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+
+  if (!apiKey) {
+    return (
+      <div className="h-full w-full rounded-lg flex items-center justify-center bg-gray-100">
+        <div className="text-center p-6">
+          <p className="text-red-500 font-semibold mb-2">Missing Google Maps API Key</p>
+          <p className="text-sm text-gray-600">
+            Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env.local file
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full w-full rounded-lg overflow-hidden relative bg-gray-100">
@@ -19,7 +33,7 @@ const GoogleMapComponent = () => {
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
-        src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=TAND+Travel,Aleea Alexandr Pușkin+Chișinău&zoom=16&maptype=roadmap&language=en&region=MD`}
+        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=TAND+Travel,Aleea Alexandr Pușkin+Chișinău&zoom=16&maptype=roadmap&language=en&region=MD`}
       ></iframe>
 
       <div className="absolute bottom-4 left-4 bg-white p-3 rounded-md shadow-md max-w-[300px] z-10">
@@ -37,6 +51,7 @@ const GoogleMapComponent = () => {
     </div>
   );
 };
+
 export function QuickLinks({ lang = 'en' }) {
   const { translations, isLoaded } = useLanguage();
   const t = isLoaded ? translations.footer.quickLinks : {};
@@ -123,7 +138,6 @@ export function QuickLinks({ lang = 'en' }) {
 
         <div className="flex-grow w-full h-[300px] md:h-[400px] lg:h-[500px]">
           <GoogleMapComponent />
-
         </div>
       </div>
     </section>
