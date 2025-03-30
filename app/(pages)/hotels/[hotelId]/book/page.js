@@ -308,8 +308,9 @@ export default function BookingPage({ searchParams = {} }) {
             status: "Active"
           });
           stayResponse = stayDataResponse.data;
-          hotelRequests.push(stayResponse.id);
           localStorage.removeItem('stayBookingData');
+          localStorage.removeItem('flightBookingData');
+          hotelRequests.push(stayResponse.id);
         } catch (error) {
           console.error('Stay API error:', error.response?.data || error.message);
           throw error;
@@ -325,6 +326,7 @@ export default function BookingPage({ searchParams = {} }) {
             ...bookingData.flightData
           });
           flightRequests.push(flightResponse.data.id);
+          localStorage.removeItem('stayBookingData');
           localStorage.removeItem('flightBookingData');
         } catch (flightData) {
           console.error('Flight API error:', flightData.response?.data || flightData.message);
