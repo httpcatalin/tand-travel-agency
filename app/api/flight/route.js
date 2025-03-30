@@ -27,6 +27,16 @@ export async function POST(request) {
                     text: { content: flightData.from }
                 }]
             },
+            "Arrival Airport Code": {
+                rich_text: [{
+                    text: { content: flightData.arrivalAirportCode }
+                }]
+            },
+            "Depart Airport Code": {
+                rich_text: [{
+                    text: { content: flightData.departureAirportCode }
+                }]
+            },
             "Departure Date": {
                 date: {
                     start: flightData.departDate
