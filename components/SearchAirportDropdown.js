@@ -47,18 +47,18 @@ export function SearchAirportDropdown({
       <PopoverTrigger className={className} asChild>
         <Button
           variant="ghost"
-          className="justify-start line-clamp-1 font-normal"
+          className="justify-start line-clamp-1 font-normal text-xs sm:text-base py-2 h-auto min-h-[40px]"
         >
           {flightFormData[name] === "" ? t.select : flightFormData[name]}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80" align="center">
+      <PopoverContent className="w-[90vw] max-w-[320px]" align="start">
         <Input
           className="w-full mb-3"
           placeholder="Search..."
           onChange={handleChange}
         />
-        <div className="h-80 overflow-auto golobe-scrollbar">
+        <div className="max-h-[60vh] sm:h-80 overflow-auto golobe-scrollbar">
           <div>
             {Object.keys(filter).length < 1 ? (
               <div className="p-4 text-center text-sm">No results found</div>
@@ -67,7 +67,7 @@ export function SearchAirportDropdown({
                 if (
                   flightFormData[oppositeCodeName[codeName]] === obj.iata_code
                 ) {
-                  return;
+                  return null;
                 }
                 return (
                   <div
@@ -76,24 +76,24 @@ export function SearchAirportDropdown({
                       const data =
                         obj.city + ", " + obj.country === flightFormData[name]
                           ? {
-                              [name]: "",
-                              [codeName]: "",
-                            }
+                            [name]: "",
+                            [codeName]: "",
+                          }
                           : {
-                              [name]: obj?.city + ", " + obj?.country,
-                              [codeName]: obj?.iata_code,
-                            };
+                            [name]: obj?.city + ", " + obj?.country,
+                            [codeName]: obj?.iata_code,
+                          };
 
                       dispatch(setFlightForm(data));
 
                       setOpen(false);
                     }}
-                    className="cursor-pointer p-4 hover:bg-muted"
+                    className="cursor-pointer p-4 hover:bg-muted active:bg-muted/80 min-h-[44px] touch-manipulation"
                   >
                     <div className="text-sm">
                       {obj.city + ", " + obj.country} {"(" + obj.iata_code + ")"}
                     </div>
-                    <small className="text-xs opacity-40 font-semibold">
+                    <small className="text-xs opacity-40 font-semibold line-clamp-1">
                       {obj.name}
                     </small>
                   </div>
@@ -105,4 +105,4 @@ export function SearchAirportDropdown({
       </PopoverContent>
     </Popover>
   );
-}
+};
