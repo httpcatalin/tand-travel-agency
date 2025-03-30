@@ -360,7 +360,7 @@ export default function BookingPage({ searchParams = {} }) {
 
   return (
     <main className="mx-auto mb-[80px] mt-[40px] w-[95%] text-secondary">
-      <BreadcrumbUI />
+      {/* <BreadcrumbUI /> */}
 
       <div className={`mt-[30px] flex gap-[20px] max-lg:flex-col lg:gap-[30px] xl:gap-[40px]`} style={{
         transition: 'opacity 0.1s ease-in-out',
