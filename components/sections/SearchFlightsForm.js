@@ -102,6 +102,7 @@ function SearchFlightsForm({ searchParams = {} }) {
       method="get"
       action="/hotels/123/book"
       onSubmit={handleSubmit}
+      className="px-3 md:px-0"
     >
       <input type="hidden" name="lang" value={language || 'en'} />
 
@@ -136,9 +137,9 @@ function SearchFlightsForm({ searchParams = {} }) {
         value={JSON.stringify(flightFormData.filters)}
       />
 
-      <div className="my-[20px] grid gap-[24px] lg:grid-cols-2 xl:grid-cols-[2fr_1fr_repeat(2,_2fr)]">
-        <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+      <div className="my-[15px] sm:my-[20px] grid gap-[16px] sm:gap-[24px] grid-cols-1 lg:grid-cols-2 xl:grid-cols-[2fr_1fr_repeat(2,_2fr)]">
+        <div className="relative flex min-h-[56px] sm:min-h-[48px] w-full flex-col sm:flex-row items-center gap-[4px] rounded-[8px] border-2 border-primary">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
             {t.from} <span className="text-red-600">{t.required}</span> - {t.to}{" "}
             <span className="text-red-600">{t.required}</span>
           </span>
@@ -147,7 +148,7 @@ function SearchFlightsForm({ searchParams = {} }) {
             name="from"
             codeName="departureAirportCode"
             airports={airports}
-            className="h-full w-[45%]"
+            className="h-full w-full sm:w-[45%]"
           />
 
           <button
@@ -164,7 +165,7 @@ function SearchFlightsForm({ searchParams = {} }) {
               );
             }}
             aria-label={t.swap}
-            className="flex h-full w-[10%] items-center justify-center rounded-lg transition-all hover:bg-slate-400/20"
+            className="flex h-10 w-[10%] min-w-[40px] items-center justify-center rounded-lg transition-all hover:bg-slate-400/20 touch-manipulation"
           >
             <Image
               src={swap}
@@ -179,19 +180,19 @@ function SearchFlightsForm({ searchParams = {} }) {
             name="to"
             codeName="arrivalAirportCode"
             airports={airports}
-            className="h-full w-[45%]"
+            className="h-full w-full sm:w-[45%]"
           />
         </div>
 
-        <div className="relative rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+        <div className="relative rounded-[8px] min-h-[56px] sm:min-h-[48px] border-2 border-primary">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
             {t.trip} <span className="text-red-600">{t.required}</span>
           </span>
           <SelectTrip />
         </div>
 
-        <div className="relative flex h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+        <div className="relative flex min-h-[56px] sm:min-h-[48px] w-full items-center gap-[4px] rounded-[8px] border-2 border-primary">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
             {t.depart} <span className="text-red-600">{t.required}</span> -{" "}
             {t.return}{" "}
             {flightFormData.trip === "roundtrip" && (
@@ -204,8 +205,8 @@ function SearchFlightsForm({ searchParams = {} }) {
           />
         </div>
 
-        <div className="relative flex h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
-          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] leading-none">
+        <div className="relative flex min-h-[56px] sm:min-h-[48px] items-center gap-[4px] rounded-[8px] border-2 border-primary">
+          <span className="absolute -top-[8px] left-[16px] z-10 inline-block bg-white px-[4px] text-xs sm:text-sm leading-none">
             {t.passenger} <span className="text-red-600">{t.required}</span> -{" "}
             {t.class} <span className="text-red-600">{t.required}</span>
           </span>
@@ -214,17 +215,17 @@ function SearchFlightsForm({ searchParams = {} }) {
               asChild
               className="h-full w-full justify-start rounded-lg"
             >
-              <Button variant="ghost" className="font-normal">
+              <Button variant="ghost" className="font-normal text-xs sm:text-base line-clamp-1">
                 {`${totalPassenger()} ${totalPassenger() === 1
                   ? t.passengers.person
                   : t.passengers.people
                   }, ${getClassName(flightFormData.class)}`}
               </Button>
             </PopoverTrigger>
-            <PopoverContent>
+            <PopoverContent className="w-[90vw] max-w-[280px] sm:w-auto">
               <Card className="p-3 mb-3 border-2 border-primary bg-primary/30">
                 <CardHeader className="p-0 mb-4">
-                  <CardTitle>{t.class}</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">{t.class}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="border-2 border-primary rounded-lg">
@@ -236,7 +237,7 @@ function SearchFlightsForm({ searchParams = {} }) {
               </Card>
               <Card className="p-3 border-2 border-primary bg-primary/30">
                 <CardHeader className="p-0 mb-4">
-                  <CardTitle>{t.passenger}</CardTitle>
+                  <CardTitle className="text-base sm:text-lg">{t.passenger}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0 flex flex-col gap-3">
                   <Label>
@@ -246,7 +247,7 @@ function SearchFlightsForm({ searchParams = {} }) {
                       onChange={(e) =>
                         dispatch(setFlightForm({ adult: +e.target.value }))
                       }
-                      className="p-2 mt-1 block rounded-sm"
+                      className="p-2 mt-1 block w-full rounded-sm touch-manipulation"
                     >
                       {adultsOptions.map((option, index) => (
                         <option key={index} value={option}>
@@ -262,7 +263,7 @@ function SearchFlightsForm({ searchParams = {} }) {
                       onChange={(e) =>
                         dispatch(setFlightForm({ children: +e.target.value }))
                       }
-                      className="p-2 mt-1 block rounded-sm"
+                      className="p-2 mt-1 block w-full rounded-sm touch-manipulation"
                     >
                       {childrenOptions.map((option, index) => (
                         <option key={index} value={option}>
@@ -278,8 +279,8 @@ function SearchFlightsForm({ searchParams = {} }) {
         </div>
       </div>
 
-      <div className="flex flex-wrap justify-end gap-[24px]">
-        <Button type="submit" className="gap-1">
+      <div className="flex flex-wrap justify-center sm:justify-end gap-[24px] mt-4 sm:mt-0">
+        <Button type="submit" className="gap-1 w-full sm:w-auto min-h-[48px] px-6 touch-manipulation">
           <Image
             src="/icons/paper-plane-filled.svg"
             alt="paper_plane_icon"
@@ -291,6 +292,6 @@ function SearchFlightsForm({ searchParams = {} }) {
       </div>
     </form>
   );
-}
+};
 
 export { SearchFlightsForm };
