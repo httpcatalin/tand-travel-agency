@@ -45,20 +45,20 @@ jobs:
             name: "next-app",
             script: "node_modules/next/dist/bin/next",
             args: "start",
-            cwd: "/home/tandtrav/tandtravel.md/tandtravel",
+            cwd: "/home/tandtrav/tandtravel.md",
             instances: "max",
             exec_mode: "cluster",
             env: {
               NODE_ENV: "production",
               PORT: 3000,
-              NEXT_PUBLIC_BASE_URL: "${NEXT_PUBLIC_BASE_URL}",
-              MONGODB_URI: "${MONGODB_URI}",
-              AUTH_TRUST_HOST: "${AUTH_TRUST_HOST}",
-              AUTH_SECRET: "${AUTH_SECRET}",
-              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}",
-              NEXT_PUBLIC_FIREBASE_API_KEY: "${NEXT_PUBLIC_FIREBASE_API_KEY}",
-              NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}",
-              NEXT_PUBLIC_FIREBASE_PROJECT_ID: "${NEXT_PUBLIC_FIREBASE_PROJECT_ID}"
+              NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+              MONGODB_URI: process.env.MONGODB_URI,
+              AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+              AUTH_SECRET: process.env.AUTH_SECRET,
+              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+              NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+              NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+              NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
             }
           }]
         }' > deployment/ecosystem.config.js
@@ -69,5 +69,20 @@ jobs:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
+        local-dir: ./deployment/
+        server-dir: ./tandtravel/
         dangerous-clean-slate: false
         protocol: ftp
+
+    - name: Restart PM2
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd tandtravel
+          pm2 delete ecosystem.config.js
+          pm2 start ecosystem.config.js
+          pm2 save
+          pm2 startup
