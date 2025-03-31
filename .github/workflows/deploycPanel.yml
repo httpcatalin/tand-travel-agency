@@ -10,13 +10,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    # Setup Node.js
     - name: Setup Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
-    # Install and build with production dependencies
     - name: Install and Build
       env:
         NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
@@ -48,7 +46,6 @@ jobs:
         npm run build -- --no-lint
         npm prune --production --force
 
-    # Prepare deployment package
     - name: Prepare Deployment
       run: |
         mkdir -p deployment
@@ -59,7 +56,6 @@ jobs:
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
         
-        # Create PM2 ecosystem file with environment variables
         echo 'module.exports = {
           apps: [{
             name: "next-app",
@@ -99,7 +95,6 @@ jobs:
           }]
         }' > deployment/ecosystem.config.js
 
-    # FTP Deploy
     - name: FTP Deploy Dynamic App
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
@@ -107,6 +102,5 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./deployment/
-        server-dir: /home/tandtrav/public_html/
+        server-dir: ./public_html/
         dangerous-clean-slate: false
-        server-dotfiles: true
