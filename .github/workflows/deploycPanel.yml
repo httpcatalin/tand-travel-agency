@@ -19,7 +19,7 @@ jobs:
     # Install dependencies and build
     - name: Install and Build
       run: |
-        npm install
+        npm install --force
         npm run dev
 
     # Prepare deployment package
