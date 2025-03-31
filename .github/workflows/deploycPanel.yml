@@ -19,8 +19,9 @@ jobs:
     # Install dependencies and build
     - name: Install and Build
       run: |
-        npm install --force
-        npm run build
+        npm ci # Clean install from lockfile
+        npm run build -- --no-lint
+        npm prune --production --force
 
     # Prepare deployment package
     - name: Prepare Deployment
