@@ -19,4 +19,5 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./
-        server-dir: /home/tandtrav/public_html/
+        server-dir: ./public_html/        
+        dangerous-clean-slate: true        
