@@ -20,7 +20,7 @@ jobs:
     - name: Install and Build
       run: |
         npm install --force
-        npm run dev
+        npm run build
 
     # Prepare deployment package
     - name: Prepare Deployment
