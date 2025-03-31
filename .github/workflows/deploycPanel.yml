@@ -57,8 +57,7 @@ jobs:
         cp -r node_modules/ deployment/
         cp package.json deployment/
         cp package-lock.json deployment/
-        [ -f "next.config.mjs" ] && cp next.config.mjs deployment/ || \
-        [ -f "next.config.js" ] && cp next.config.js deployment/
+        [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
         
         # Create PM2 ecosystem file with environment variables
         echo 'module.exports = {
