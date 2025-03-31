@@ -1,23 +1,48 @@
-name: Publish Website to CPanel
+name: Deploy Next.js to cPanel
 on:
-  push: 
-    branches: 
+  push:
+    branches:
       - main
+
 jobs:
-  FTP-Deploy-Action:
-    name: FTP-Deploy-Action 
+  deploy:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+
+    # Setup Node.js
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
       with:
-        fetch-depth: 0
-        
-    - name: FTP Deploy
+        node-version: '18'
+
+    # Install dependencies and build
+    - name: Install and Build
+      run: |
+        npm install
+        npm run dev
+
+    # Prepare deployment package
+    - name: Prepare Deployment
+      run: |
+        mkdir -p deployment
+        # Copy only necessary files
+        cp -r .next/ deployment/
+        cp -r public/ deployment/
+        cp package.json deployment/
+        cp package-lock.json deployment/
+        cp next.config.js deployment/  # If exists
+        # For static export (if used)
+        [ -d "out" ] && cp -r out/ deployment/
+
+    # FTP Deploy to exact path
+    - name: FTP Deploy to tandtrav
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_SERVER }}
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
-        local-dir: ./
-        server-dir: public_html/     
-        dangerous-clean-slate: true        
+        local-dir: ./deployment/
+        server-dir: /home/tandtrav/public_html/
+        dangerous-clean-slate: false  # Safer than true
+        server-dotfiles: true
