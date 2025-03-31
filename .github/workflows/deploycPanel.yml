@@ -18,6 +18,31 @@ jobs:
 
     # Install and build with production dependencies
     - name: Install and Build
+      env:
+        NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
+        MONGODB_URI: ${{ secrets.MONGODB_URI }}
+        AUTH_TRUST_HOST: ${{ secrets.AUTH_TRUST_HOST }}
+        AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+        AUTH_APPLE_SECRET: ${{ secrets.AUTH_APPLE_SECRET }}
+        NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
+        NEXT_PUBLIC_REVALIDATION_TIME: ${{ secrets.NEXT_PUBLIC_REVALIDATION_TIME }}
+        NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
+        NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
+        NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
+        NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
+        NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
+        NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
+        NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
+        NEXT_PUBLIC_FIREBASE_AUTH_EMAIL: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_EMAIL }}
+        NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD }}
+        MAIL_API_TOKEN: ${{ secrets.MAIL_API_TOKEN }}
+        MAIL_SECRET_TOKEN: ${{ secrets.MAIL_SECRET_TOKEN }}
+        CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+        NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
+        NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
+        NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
+        NEXT_PUBLIC_APP_MODE: ${{ secrets.NEXT_PUBLIC_APP_MODE }}
       run: |
         npm ci --force
         npm run build -- --no-lint
@@ -30,12 +55,12 @@ jobs:
         # Essential files for dynamic site
         cp -r .next/ deployment/
         cp -r public/ deployment/
-        cp -r node_modules/ deployment/  # Critical for dynamic sites
+        cp -r node_modules/ deployment/
         cp package.json deployment/
         cp package-lock.json deployment/
         cp next.config.js deployment/
         
-        # Create PM2 ecosystem file
+        # Create PM2 ecosystem file with environment variables
         echo 'module.exports = {
           apps: [{
             name: "next-app",
@@ -46,7 +71,31 @@ jobs:
             exec_mode: "cluster",
             env: {
               NODE_ENV: "production",
-              PORT: 3000
+              PORT: 3000,
+              NEXT_PUBLIC_BASE_URL: "${NEXT_PUBLIC_BASE_URL}",
+              MONGODB_URI: "${MONGODB_URI}",
+              AUTH_TRUST_HOST: "${AUTH_TRUST_HOST}",
+              AUTH_SECRET: "${AUTH_SECRET}",
+              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "${NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}",
+              NEXT_PUBLIC_REVALIDATION_TIME: "${NEXT_PUBLIC_REVALIDATION_TIME}",
+              NEXT_PUBLIC_FIREBASE_API_KEY: "${NEXT_PUBLIC_FIREBASE_API_KEY}",
+              NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "${NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN}",
+              NEXT_PUBLIC_FIREBASE_PROJECT_ID: "${NEXT_PUBLIC_FIREBASE_PROJECT_ID}",
+              NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "${NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET}",
+              NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "${NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID}",
+              NEXT_PUBLIC_FIREBASE_APP_ID: "${NEXT_PUBLIC_FIREBASE_APP_ID}",
+              NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "${NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID}",
+              NEXT_PUBLIC_FIREBASE_AUTH_EMAIL: "${NEXT_PUBLIC_FIREBASE_AUTH_EMAIL}",
+              NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD: "${NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD}",
+              MAIL_SENDER_EMAIL: "${MAIL_SENDER_EMAIL}",
+              MAIL_API_TOKEN: "${MAIL_API_TOKEN}",
+              MAIL_SECRET_TOKEN: "${MAIL_SECRET_TOKEN}",
+              CRON_SECRET: "${CRON_SECRET}",
+              NOTION_DATABASE_ID: "${NOTION_DATABASE_ID}",
+              NOTION_API_KEY: "${NOTION_API_KEY}",
+              NOTION_CLIENT_ID: "${NOTION_CLIENT_ID}",
+              NOTION_CLIENT_SECRET: "${NOTION_CLIENT_SECRET}",
+              NEXT_PUBLIC_APP_MODE: "${NEXT_PUBLIC_APP_MODE}"
             }
           }]
         }' > deployment/ecosystem.config.js
