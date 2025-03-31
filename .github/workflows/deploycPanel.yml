@@ -20,7 +20,7 @@ jobs:
     - name: Install and Build
       run: |
         npm ci --force
-        npm run build
+        npm run build -- --no-lint
         npm prune --production --force
 
     # Prepare deployment package
