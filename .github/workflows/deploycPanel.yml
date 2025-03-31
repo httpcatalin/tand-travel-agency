@@ -26,10 +26,6 @@ jobs:
         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
         NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
       run: |
-        npm config delete prefix
-        mkdir -p ~/.npm-global
-        npm config set prefix '~/.npm-global'
-        export PATH=~/.npm-global/bin:$PATH
         npm ci --force
         npm run build -- --no-lint
         npm prune --production --force
@@ -39,16 +35,16 @@ jobs:
         mkdir -p deployment
         cp -r .next/ deployment/
         cp -r public/ deployment/
-        cp -r node_modules/ deployment/
         cp package.json deployment/
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
+
         echo 'module.exports = {
           apps: [{
             name: "next-app",
             script: "node_modules/next/dist/bin/next",
             args: "start",
-            cwd: "/home/tandtrav/tandtravel.md",
+            cwd: "/home/tandtrav/public_html",
             instances: "max",
             exec_mode: "cluster",
             env: {
@@ -73,7 +69,7 @@ jobs:
         username: ${{ secrets.FTP_USERNAME }}
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./deployment/
-        server-dir: ./tandtravel/
+        server-dir: ./public_html/  # Deploys to /home/tandtrav/public_html
         dangerous-clean-slate: false
         protocol: ftp
 
@@ -83,10 +79,13 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          export PATH=~/.npm-global/bin:$PATH
+          # Create symlink to node_modules if needed
+          if [ ! -d "/home/tandtrav/public_html/node_modules" ]; then
+            ln -s /home/tandtrav/node_modules /home/tandtrav/public_html/node_modules
+          fi
+          
           cd /home/tandtrav/public_html
-          /opt/cpanel/ea-nodejs20/bin/npx pm2 delete ecosystem.config.js || true
-          /opt/cpanel/ea-nodejs20/bin/npx pm2 start ecosystem.config.js
-          /opt/cpanel/ea-nodejs20/bin/npx pm2 save
+          /home/tandtrav/node_modules/.bin/pm2 delete ecosystem.config.js || true
+          /home/tandtrav/node_modules/.bin/pm2 start ecosystem.config.js
+          /home/tandtrav/node_modules/.bin/pm2 save
