@@ -79,6 +79,7 @@ jobs:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
           # Create symlink to node_modules if needed
           if [ ! -d "/home/tandtrav/public_html/node_modules" ]; then
