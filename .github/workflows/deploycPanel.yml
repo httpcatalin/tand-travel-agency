@@ -26,6 +26,10 @@ jobs:
         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
         NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
       run: |
+        npm config delete prefix
+        mkdir -p ~/.npm-global
+        npm config set prefix '~/.npm-global'
+        export PATH=~/.npm-global/bin:$PATH
         npm ci --force
         npm run build -- --no-lint
         npm prune --production --force
@@ -39,7 +43,6 @@ jobs:
         cp package.json deployment/
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
-
         echo 'module.exports = {
           apps: [{
             name: "next-app",
@@ -82,7 +85,8 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
+          export PATH=~/.npm-global/bin:$PATH
           cd /home/tandtrav/public_html
           /opt/cpanel/ea-nodejs20/bin/npx pm2 delete ecosystem.config.js || true
           /opt/cpanel/ea-nodejs20/bin/npx pm2 start ecosystem.config.js
-          /opt/cpanel/ea-nodejs20/bin/npx pm2 save 
+          /opt/cpanel/ea-nodejs20/bin/npx pm2 save
