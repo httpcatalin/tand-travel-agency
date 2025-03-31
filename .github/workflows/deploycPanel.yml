@@ -82,8 +82,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          export PATH=~/.npm-global/bin:$PATH
           cd /home/tandtrav/public_html
-          pm2 delete ecosystem.config.js || true
-          pm2 start ecosystem.config.js
-          pm2 save  
+          npx pm2 delete ecosystem.config.js || true
+          npx pm2 start ecosystem.config.js
+          npx pm2 save 
