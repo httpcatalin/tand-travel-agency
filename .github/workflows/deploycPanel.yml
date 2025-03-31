@@ -1,4 +1,4 @@
-name: Deploy Next.js to cPanel
+name: Deploy Dynamic Next.js to cPanel
 on:
   push:
     branches:
@@ -16,28 +16,43 @@ jobs:
       with:
         node-version: '18'
 
-    # Install dependencies and build
+    # Install and build with production dependencies
     - name: Install and Build
       run: |
-        npm ci # Clean install from lockfile
-        npm run build -- --no-lint
+        npm ci --force
+        npm run build
         npm prune --production --force
 
     # Prepare deployment package
     - name: Prepare Deployment
       run: |
         mkdir -p deployment
-        # Copy only necessary files
+        # Essential files for dynamic site
         cp -r .next/ deployment/
         cp -r public/ deployment/
+        cp -r node_modules/ deployment/  # Critical for dynamic sites
         cp package.json deployment/
         cp package-lock.json deployment/
-        cp next.config.js deployment/  # If exists
-        # For static export (if used)
-        [ -d "out" ] && cp -r out/ deployment/
+        cp next.config.js deployment/
+        
+        # Create PM2 ecosystem file
+        echo 'module.exports = {
+          apps: [{
+            name: "next-app",
+            script: "node_modules/next/dist/bin/next",
+            args: "start",
+            cwd: "/home/tandtrav/public_html",
+            instances: "max",
+            exec_mode: "cluster",
+            env: {
+              NODE_ENV: "production",
+              PORT: 3000
+            }
+          }]
+        }' > deployment/ecosystem.config.js
 
-    # FTP Deploy to exact path
-    - name: FTP Deploy to tandtrav
+    # FTP Deploy
+    - name: FTP Deploy Dynamic App
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -45,5 +60,5 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         local-dir: ./deployment/
         server-dir: /home/tandtrav/public_html/
-        dangerous-clean-slate: false  # Safer than true
+        dangerous-clean-slate: false
         server-dotfiles: true
