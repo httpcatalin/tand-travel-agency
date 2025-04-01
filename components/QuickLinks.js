@@ -33,7 +33,7 @@ const GoogleMapComponent = () => {
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
-        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=16&maptype=roadmap&language=${lang}&region=MD`}
+        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=TAND+Travel,Chișinău+Moldova&zoom=16&maptype=roadmap&region=MD`}
       >
 
 
