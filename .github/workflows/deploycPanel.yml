@@ -35,6 +35,7 @@ jobs:
         mkdir -p deployment
         cp -r .next/ deployment/
         cp -r public/ deployment/
+        cp -r node_modules/ deployment/
         cp package.json deployment/
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
@@ -42,11 +43,11 @@ jobs:
         echo 'module.exports = {
           apps: [{
             name: "next-app",
-            script: "/home/tandtrav/node_modules/next/dist/bin/next",
+            script: "npm",
             args: "start",
             cwd: "/home/tandtrav/public_html",
-            instances: "max",
-            exec_mode: "cluster",
+            instances: 1,
+            exec_mode: "fork",
             env: {
               NODE_ENV: "production",
               PORT: 3000,
@@ -81,30 +82,20 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          # Set up environment
-          export NODE_ENV=production
-          export PATH="/home/tandtrav/node_modules/.bin:$PATH"
-          
-          # Verify and prepare node_modules
+          # Install dependencies and PM2
           cd /home/tandtrav/public_html
-          if [ -d "node_modules" ]; then
-            rm -rf node_modules
-          fi
-          ln -s /home/tandtrav/node_modules .
-          
-          # Install PM2 globally if needed
-          if ! command -v pm2 &> /dev/null; then
-            npm install pm2 -g
-          fi
+          npm install --production
+          npm install pm2
           
           # Stop existing instance
           pm2 delete next-app || true
           
-          # Start new instance with logging
-          pm2 start ecosystem.config.js
+          # Start application
+          NODE_ENV=production pm2 start npm --name "next-app" -- start
           pm2 save --force
           
-          # Health check
-          sleep 5
+          # Verify status
+          sleep 10
           pm2 list
-          curl -I http://localhost:3000 || (echo "Health check failed"; exit 1)
+          pm2 logs next-app --lines 100
+          curl -I http://localhost:3000 || (echo "Health check failed - checking logs:"; pm2 logs next-app --lines 100; exit 1)
