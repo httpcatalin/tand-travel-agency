@@ -73,29 +73,38 @@ jobs:
         dangerous-clean-slate: false
         protocol: ftp
 
-    - name: Restart PM2
+    - name: Restart PM2 via SSH
       uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          # Create or refresh symlink to node_modules
-          cd /home/tandtrav/public_html
-          rm -f node_modules 2>/dev/null || true
-          ln -sf /home/tandtrav/node_modules .
+          # Set up environment
+          export NODE_ENV=production
+          export PATH="/home/tandtrav/node_modules/.bin:$PATH"
           
-          # Verify Next.js exists
-          if [ ! -f "/home/tandtrav/node_modules/next/dist/bin/next" ]; then
-            echo "Error: Next.js executable not found at /home/tandtrav/node_modules/next/dist/bin/next"
-            exit 1
+          # Verify and prepare node_modules
+          cd /home/tandtrav/public_html
+          if [ -d "node_modules" ]; then
+            rm -rf node_modules
+          fi
+          ln -s /home/tandtrav/node_modules .
+          
+          # Install PM2 globally if needed
+          if ! command -v pm2 &> /dev/null; then
+            npm install pm2 -g
           fi
           
-          # Restart PM2
-          /home/tandtrav/node_modules/.bin/pm2 delete ecosystem.config.js || true
-          /home/tandtrav/node_modules/.bin/pm2 start ecosystem.config.js
-          /home/tandtrav/node_modules/.bin/pm2 save --force
+          # Stop existing instance
+          pm2 delete next-app || true
           
-          # Verify it's running
+          # Start new instance with logging
+          pm2 start ecosystem.config.js
+          pm2 save --force
+          
+          # Health check
           sleep 5
-          /home/tandtrav/node_modules/.bin/pm2 list
+          pm2 list
+          curl -I http://localhost:3000 || (echo "Health check failed"; exit 1)
