@@ -26,7 +26,7 @@ jobs:
         NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
         NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
       run: |
-        npm ci --force
+        npm ci --legacy-peer-deps --force
         npm run build -- --no-lint
         npm prune --production --force
 
@@ -82,10 +82,15 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         passphrase: ${{ secrets.SSH_PASSPHRASE }}
         script: |
-          # Install dependencies and PM2
+          # Install PM2 globally with proper permissions
+          sudo npm install pm2 -g || npm install pm2 -g
+          
+          # Set up environment
           cd /home/tandtrav/public_html
-          npm install --production
-          npm install pm2
+          export PATH=$PATH:/usr/bin:/usr/local/bin
+          
+          # Install production dependencies with legacy peer deps
+          npm install --omit=dev --legacy-peer-deps --force
           
           # Stop existing instance
           pm2 delete next-app || true
@@ -94,8 +99,12 @@ jobs:
           NODE_ENV=production pm2 start npm --name "next-app" -- start
           pm2 save --force
           
+          # Set PM2 to start on boot
+          pm2 startup
+          pm2 save
+          
           # Verify status
-          sleep 10
+          sleep 15
           pm2 list
           pm2 logs next-app --lines 100
           curl -I http://localhost:3000 || (echo "Health check failed - checking logs:"; pm2 logs next-app --lines 100; exit 1)
