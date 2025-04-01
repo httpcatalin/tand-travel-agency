@@ -33,8 +33,11 @@ const GoogleMapComponent = () => {
         loading="lazy"
         allowFullScreen
         referrerPolicy="no-referrer-when-downgrade"
-        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=TAND+Travel,Aleea Alexandr Pușkin+Chișinău&zoom=16&maptype=roadmap&language=en&region=MD`}
-      ></iframe>
+        src={`https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${latitude},${longitude}&zoom=16&maptype=roadmap&language=${lang}&region=MD`}
+      >
+
+
+      </iframe>
 
       <div className="absolute bottom-4 left-4 bg-white p-3 rounded-md shadow-md max-w-[300px] z-10">
         <h3 className="font-semibold text-primary">Tand Travel Agency</h3>
