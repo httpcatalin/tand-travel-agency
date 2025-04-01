@@ -1,4 +1,4 @@
-name: Deploy Dynamic Next.js to cPanel
+name: Upload Next.js to cPanel
 on:
   push:
     branches:
@@ -30,7 +30,7 @@ jobs:
         npm run build -- --no-lint
         npm prune --production --force
 
-    - name: Prepare Deployment
+    - name: Prepare Deployment Package
       run: |
         mkdir -p deployment
         cp -r .next/ deployment/
@@ -40,30 +40,7 @@ jobs:
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
 
-        echo 'module.exports = {
-          apps: [{
-            name: "next-app",
-            script: "npm",
-            args: "start",
-            cwd: "/home/tandtrav/public_html",
-            instances: 1,
-            exec_mode: "fork",
-            env: {
-              NODE_ENV: "production",
-              PORT: 3000,
-              NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
-              MONGODB_URI: process.env.MONGODB_URI,
-              AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
-              AUTH_SECRET: process.env.AUTH_SECRET,
-              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-              NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-              NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-              NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
-            }
-          }]
-        }' > deployment/ecosystem.config.js
-
-    - name: FTP Deploy
+    - name: Upload Files via FTP
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -73,38 +50,3 @@ jobs:
         server-dir: ./public_html/
         dangerous-clean-slate: false
         protocol: ftp
-
-    - name: Restart PM2 via SSH
-      uses: appleboy/ssh-action@v1.0.0
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        passphrase: ${{ secrets.SSH_PASSPHRASE }}
-        script: |
-          # Install PM2 globally with proper permissions
-          sudo npm install pm2 -g || npm install pm2 -g
-          
-          # Set up environment
-          cd /home/tandtrav/public_html
-          export PATH=$PATH:/usr/bin:/usr/local/bin
-          
-          # Install production dependencies with legacy peer deps
-          npm install --omit=dev --legacy-peer-deps --force
-          
-          # Stop existing instance
-          pm2 delete next-app || true
-          
-          # Start application
-          NODE_ENV=production pm2 start npm --name "next-app" -- start
-          pm2 save --force
-          
-          # Set PM2 to start on boot
-          pm2 startup
-          pm2 save
-          
-          # Verify status
-          sleep 15
-          pm2 list
-          pm2 logs next-app --lines 100
-          curl -I http://localhost:3000 || (echo "Health check failed - checking logs:"; pm2 logs next-app --lines 100; exit 1)
