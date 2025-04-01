@@ -1,4 +1,4 @@
-name: Upload Next.js to cPanel
+name: Deploy Next.js to cPanel
 on:
   push:
     branches:
@@ -30,7 +30,7 @@ jobs:
         npm run build -- --no-lint
         npm prune --production --force
 
-    - name: Prepare Deployment Package
+    - name: Prepare Deployment
       run: |
         mkdir -p deployment
         cp -r .next/ deployment/
@@ -40,7 +40,30 @@ jobs:
         cp package-lock.json deployment/
         [ -f "next.config.mjs" ] && cp next.config.mjs deployment/
 
-    - name: Upload Files via FTP
+        echo 'module.exports = {
+          apps: [{
+            name: "next-app",
+            script: "npm",
+            args: "start",
+            cwd: "/home/tandtrav/public_html",
+            instances: 1,
+            exec_mode: "fork",
+            env: {
+              NODE_ENV: "production",
+              PORT: 3000,
+              NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+              MONGODB_URI: process.env.MONGODB_URI,
+              AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+              AUTH_SECRET: process.env.AUTH_SECRET,
+              NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
+              NEXT_PUBLIC_FIREBASE_API_KEY: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+              NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+              NEXT_PUBLIC_FIREBASE_PROJECT_ID: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID
+            }
+          }]
+        }' > deployment/ecosystem.config.js
+
+    - name: FTP Deploy
       uses: SamKirkland/FTP-Deploy-Action@4.3.0
       with:
         server: ${{ secrets.FTP_SERVER }}
@@ -50,3 +73,42 @@ jobs:
         server-dir: ./public_html/
         dangerous-clean-slate: false
         protocol: ftp
+
+    - name: Setup PM2 Process
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        passphrase: ${{ secrets.SSH_PASSPHRASE }}
+        script: |
+          cd /home/tandtrav/public_html
+          
+          # Verify files exist
+          echo "Checking deployed files:"
+          ls -la
+          [ -f "package.json" ] || { echo "package.json missing!"; exit 1; }
+          [ -d ".next" ] || { echo ".next directory missing!"; exit 1; }
+          
+          # Install production dependencies
+          /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps --force
+          
+          # Setup PM2 process
+          if /opt/cpanel/ea-nodejs20/bin/npx pm2 list | grep -q next-app; then
+            echo "Restarting existing next-app..."
+            /opt/cpanel/ea-nodejs20/bin/npx pm2 restart next-app
+          else
+            echo "Starting new next-app..."
+            NODE_ENV=production /opt/cpanel/ea-nodejs20/bin/npx pm2 start npm --name "next-app" -- start
+          fi
+          
+          # Save and setup startup
+          /opt/cpanel/ea-nodejs20/bin/npx pm2 save
+          /opt/cpanel/ea-nodejs20/bin/npx pm2 startup 2>&1 | tail -1 | bash
+          
+          # Verify status
+          sleep 5
+          echo "Current PM2 processes:"
+          /opt/cpanel/ea-nodejs20/bin/npx pm2 list
+          echo "Application logs:"
+          /opt/cpanel/ea-nodejs20/bin/npx pm2 logs next-app --lines 20
