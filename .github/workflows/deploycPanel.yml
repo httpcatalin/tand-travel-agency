@@ -42,9 +42,9 @@ jobs:
           NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
-          npm ci --legacy-peer-deps --force
-          npm run build -- --no-lint
-          npm prune --production --force
+          npm ci --legacy-peer-deps
+          npm run build
+          npm prune --production
 
       - name: Prepare Deployment
         run: |
@@ -54,7 +54,7 @@ jobs:
           cp -r node_modules/ deployment/
           cp package*.json deployment/
           cp next.config.* deployment/ || true
-
+          
           echo 'RewriteEngine On
           RewriteBase /
           RewriteCond %{REQUEST_FILENAME} !-f
@@ -73,7 +73,7 @@ jobs:
           echo 'module.exports = {
             apps: [{
               name: "next-app",
-              script: "npm",
+              script: "node_modules/next/dist/bin/next",
               args: "start",
               cwd: "/home/tandtrav/public_html",
               instances: 1,
@@ -130,21 +130,32 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd /home/tandtrav/public_html
+            export NPM_CONFIG_PREFIX=/home/tandtrav/.npm-global
+            export PATH=$PATH:/home/tandtrav/.npm-global/bin
+            
+            # Fix permissions
             find . -type d -exec chmod 755 {} \;
             find . -type f -exec chmod 644 {} \;
-            chmod +x .next/standalone/server.js
+            [ -f ".next/standalone/server.js" ] && chmod +x .next/standalone/server.js
+            
+            # Install production dependencies
             if [ -f "package-lock.json" ]; then
-              /opt/cpanel/ea-nodejs20/bin/npm ci --omit=dev
+              npm ci --omit=dev --legacy-peer-deps --prefix=/home/tandtrav/.npm-global
             else
-              /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev
+              npm install --omit=dev --legacy-peer-deps --prefix=/home/tandtrav/.npm-global
             fi
-            if /opt/cpanel/ea-nodejs20/bin/npx pm2 describe next-app >/dev/null 2>&1; then
-              /opt/cpanel/ea-nodejs20/bin/npx pm2 reload next-app --update-env
+            
+            # PM2 process management
+            if pm2 describe next-app >/dev/null 2>&1; then
+              pm2 reload next-app --update-env
             else
-              NODE_ENV=production /opt/cpanel/ea-nodejs20/bin/npx pm2 start ecosystem.config.js
+              NODE_ENV=production pm2 start ecosystem.config.js
             fi
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 save
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 startup 2>&1 | grep "sudo" | bash
+            
+            pm2 save
+            pm2 startup 2>&1 | grep "sudo" | bash
+            
+            # Health check
             for i in {1..5}; do
               if curl -s -o /dev/null -w "%{http_code}" http://localhost:3000 | grep -q "200"; then
                 break
@@ -152,5 +163,6 @@ jobs:
                 sleep 5
               fi
             done
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 list
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 logs next-app --lines 20 --nostream
+            
+            pm2 list
+            pm2 logs next-app --lines 20 --nostream
