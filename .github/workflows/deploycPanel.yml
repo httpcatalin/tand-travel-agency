@@ -15,7 +15,14 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Install and Build
+      - name: Install dependencies
+        run: |
+          npm install -g npm@latest
+          npm ci --legacy-peer-deps --ignore-scripts
+          npm audit fix --force
+          npm dedupe
+
+      - name: Build application
         env:
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
           NEXT_PUBLIC_APP_MODE: ${{ secrets.NEXT_PUBLIC_APP_MODE }}
@@ -42,9 +49,8 @@ jobs:
           NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
-          npm ci --legacy-peer-deps
           npm run build --no-lint
-          npm prune --production
+          npm prune --production --no-audit
 
       - name: Prepare Deployment
         run: |
@@ -53,8 +59,9 @@ jobs:
           cp -r public/ deployment/
           cp -r node_modules/ deployment/
           cp package*.json deployment/
-          cp next.config.* deployment/ || true
+          [ -f "next.config.js" ] && cp next.config.js deployment/ || cp next.config.mjs deployment/
           
+          # Create optimized .htaccess
           echo 'RewriteEngine On
           RewriteBase /
           RewriteCond %{REQUEST_FILENAME} !-f
@@ -77,6 +84,10 @@ jobs:
           server-dir: ./public_html/
           protocol: ftp
           dangerous-clean-slate: true
+          exclude: |
+            *.md
+            *.log
+            .git*
 
       - name: Setup cPanel PM2 Process
         uses: appleboy/ssh-action@v1.0.0
@@ -88,9 +99,9 @@ jobs:
           script: |
             cd /home/tandtrav/public_html
             
-            # Set up EA Node.js PM2
+            # Set up EA Node.js environment
             source /opt/cpanel/ea-nodejs20/enable
-            npm config set prefix /home/tandtrav/.npm-global
+            export NPM_CONFIG_PREFIX=/home/tandtrav/.npm-global
             export PATH=$PATH:/home/tandtrav/.npm-global/bin
             
             # Fix permissions
@@ -98,17 +109,10 @@ jobs:
             find . -type f -exec chmod 644 {} \;
             [ -f ".next/standalone/server.js" ] && chmod +x .next/standalone/server.js
             
-            # Install production dependencies using cPanel's Node.js
-            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps
+            # Install production dependencies
+            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps --no-audit
             
-            # Configure PM2 through cPanel's Node.js
-            if /opt/cpanel/ea-nodejs20/bin/npm list -g pm2 | grep -q pm2; then
-              echo "PM2 already installed"
-            else
-              /opt/cpanel/ea-nodejs20/bin/npm install -g pm2
-            fi
-            
-            # Create PM2 ecosystem file
+            # Configure PM2
             echo 'module.exports = {
               apps: [{
                 name: "next-app",
@@ -149,6 +153,12 @@ jobs:
             }' > ecosystem.config.js
             
             # Manage PM2 process
+            if /opt/cpanel/ea-nodejs20/bin/npm list -g pm2 >/dev/null 2>&1; then
+              echo "PM2 already installed"
+            else
+              /opt/cpanel/ea-nodejs20/bin/npm install -g pm2
+            fi
+            
             if /opt/cpanel/ea-nodejs20/bin/npx pm2 list | grep -q next-app; then
               /opt/cpanel/ea-nodejs20/bin/npx pm2 reload next-app --update-env
             else
