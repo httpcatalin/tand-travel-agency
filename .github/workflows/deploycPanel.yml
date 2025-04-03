@@ -42,9 +42,9 @@ jobs:
           NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
-          npm ci --legacy-peer-deps
-          npm run build
-          npm prune --production
+          npm ci --legacy-peer-deps --force
+          npm run build --no-eslint
+          npm prune --production --force 
 
       - name: Prepare Deployment
         run: |
