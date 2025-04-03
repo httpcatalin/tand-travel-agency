@@ -13,13 +13,13 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: "18"
+          node-version: "20"  # Updated to Node.js 20 to match npm requirements
 
       - name: Install dependencies
         run: |
-          npm install -g npm@latest
-          npm ci --legacy-peer-deps --ignore-scripts
-          npm audit fix --force
+          # Skip npm upgrade since we're using compatible version
+          npm install --legacy-peer-deps --ignore-scripts
+          npm audit fix
           npm dedupe
 
       - name: Build application
@@ -50,7 +50,7 @@ jobs:
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
           npm run build --no-lint
-          npm prune --production --no-audit
+          npm prune --production
 
       - name: Prepare Deployment
         run: |
@@ -61,7 +61,6 @@ jobs:
           cp package*.json deployment/
           [ -f "next.config.js" ] && cp next.config.js deployment/ || cp next.config.mjs deployment/
           
-          # Create optimized .htaccess
           echo 'RewriteEngine On
           RewriteBase /
           RewriteCond %{REQUEST_FILENAME} !-f
@@ -99,7 +98,7 @@ jobs:
           script: |
             cd /home/tandtrav/public_html
             
-            # Set up EA Node.js environment
+            # Use cPanel's Node.js version
             source /opt/cpanel/ea-nodejs20/enable
             export NPM_CONFIG_PREFIX=/home/tandtrav/.npm-global
             export PATH=$PATH:/home/tandtrav/.npm-global/bin
@@ -109,10 +108,10 @@ jobs:
             find . -type f -exec chmod 644 {} \;
             [ -f ".next/standalone/server.js" ] && chmod +x .next/standalone/server.js
             
-            # Install production dependencies
-            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps --no-audit
+            # Install production dependencies using cPanel's Node.js
+            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps
             
-            # Configure PM2
+            # Configure PM2 through cPanel's Node.js
             echo 'module.exports = {
               apps: [{
                 name: "next-app",
