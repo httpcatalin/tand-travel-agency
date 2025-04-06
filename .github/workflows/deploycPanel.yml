@@ -79,6 +79,9 @@ jobs:
           protocol: ftp
           server-dry-run: false
           dangerous-clean-slate: false
+          ftp-timeout: 30000  
+          ftp-verbose: true
+          ftp-keepalive: 30000  
           exclude: |
             *node_modules*
             *.git*
