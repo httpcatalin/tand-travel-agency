@@ -99,9 +99,14 @@ jobs:
           server-dir: ./public_html/
           protocol: ftp
           exclude: |
-            *.md
-            *.log
+            node_modules/**
             .git*
+            *.log
+            *.md
+            deployment/**
+            README*
+            .next/cache/**
+
       - name: Setup cPanel PM2 Process
         uses: appleboy/ssh-action@v1.0.0
         with:
@@ -112,6 +117,7 @@ jobs:
           ftp-timeout: 30000
           ftp-verbose: true
           ftp-keepalive: 30000
+          verbose: true
           script: |
             cd /home/tandtrav/public_html
             
