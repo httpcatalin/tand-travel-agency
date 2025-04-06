@@ -15,20 +15,6 @@ jobs:
         with:
           node-version: "18"
 
-      - name: Resolve dependency conflicts
-        run: |
-          # Install core dependencies first
-          npm install @types/react@18.2.45 @testing-library/react@13.4.0 --legacy-peer-deps
-          
-          # Install modern alternatives for deprecated packages
-          npm install uuid@latest @hapi/sntp@latest rimraf@latest --legacy-peer-deps
-          
-          # Update core-js to latest version
-          npm install core-js@3 --legacy-peer-deps
-          
-          # Install react-google-maps alternative (@react-google-maps/api)
-          npm install @react-google-maps/api@2.17.1 --legacy-peer-deps
-          
       - name: Install and Build
         env:
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
@@ -56,29 +42,20 @@ jobs:
           NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
-          npm ci --legacy-peer-deps --force
-          npm run build -- --no-lint
-          npm prune --production --omit=dev --force
+          npm ci --legacy-peer-deps
+          npm run build --no-lint
+          npm prune --production
 
       - name: Prepare Deployment
         run: |
           mkdir -p deployment
-          cp -r .next/ deployment/
+          # Only copy necessary files
+          cp -r .next/standalone/ deployment/
+          cp -r .next/static/ deployment/.next/static/
           cp -r public/ deployment/
-          cp -r node_modules/ deployment/
-          cp package*.json deployment/
+          cp package.json deployment/
           
-          # Handle both JS and MJS config files
-          if [ -f "next.config.js" ]; then
-            # Fix invalid serverActions config
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.js
-            cp next.config.js deployment/
-          elif [ -f "next.config.mjs" ]; then
-            # Fix invalid serverActions config for MJS
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.mjs
-            cp next.config.mjs deployment/
-          fi
-          
+          # Create optimized .htaccess
           echo 'RewriteEngine On
           RewriteBase /
           RewriteCond %{REQUEST_FILENAME} !-f
@@ -100,12 +77,17 @@ jobs:
           local-dir: ./deployment/
           server-dir: ./public_html/
           protocol: ftp
+          server-dry-run: false
+          dangerous-clean-slate: false
           exclude: |
+            *node_modules*
+            *.git*
             *.md
             *.log
-            .git*
+            *.DS_Store
+          ftp-debug: true
 
-      - name: Setup cPanel PM2 Process
+      - name: Setup PM2 Process
         uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -114,76 +96,9 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd /home/tandtrav/public_html
-            
-            # Set up EA Node.js environment
-            source /opt/cpanel/ea-nodejs20/enable
-            export NPM_CONFIG_PREFIX=/home/tandtrav/.npm-global
-            export PATH=$PATH:/home/tandtrav/.npm-global/bin
-            
-            # Fix permissions
-            find . -type d -exec chmod 755 {} \;
-            find . -type f -exec chmod 644 {} \;
-            [ -f ".next/standalone/server.js" ] && chmod +x .next/standalone/server.js
-            
-            # Install production dependencies
-            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps
-            
-            # Configure PM2
-            echo 'module.exports = {
-              apps: [{
-                name: "next-app",
-                script: "node_modules/next/dist/bin/next",
-                args: "start",
-                cwd: "/home/tandtrav/public_html",
-                instances: 1,
-                exec_mode: "fork",
-                env: {
-                  NODE_ENV: "production",
-                  PORT: 3000,
-                  NEXT_PUBLIC_BASE_URL: "${{ secrets.NEXT_PUBLIC_BASE_URL }}",
-                  NEXT_PUBLIC_APP_MODE: "${{ secrets.NEXT_PUBLIC_APP_MODE }}",
-                  NEXT_PUBLIC_REVALIDATION_TIME: "${{ secrets.NEXT_PUBLIC_REVALIDATION_TIME }}",
-                  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}",
-                  NEXT_PUBLIC_FIREBASE_API_KEY: "${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}",
-                  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}",
-                  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}",
-                  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}",
-                  NEXT_PUBLIC_FIREBASE_APP_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}",
-                  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_EMAIL: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_EMAIL }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD }}",
-                  AUTH_TRUST_HOST: "${{ secrets.AUTH_TRUST_HOST }}",
-                  AUTH_SECRET: "${{ secrets.AUTH_SECRET }}",
-                  MONGODB_URI: "${{ secrets.MONGODB_URI }}",
-                  MAIL_SENDER_EMAIL: "${{ secrets.MAIL_SENDER_EMAIL }}",
-                  MAIL_API_TOKEN: "${{ secrets.MAIL_API_TOKEN }}",
-                  MAIL_SECRET_TOKEN: "${{ secrets.MAIL_SECRET_TOKEN }}",
-                  CRON_SECRET: "${{ secrets.CRON_SECRET }}",
-                  NOTION_DATABASE_ID: "${{ secrets.NOTION_DATABASE_ID }}",
-                  NOTION_API_KEY: "${{ secrets.NOTION_API_KEY }}",
-                  NOTION_CLIENT_ID: "${{ secrets.NOTION_CLIENT_ID }}",
-                  NOTION_CLIENT_SECRET: "${{ secrets.NOTION_CLIENT_SECRET }}"
-                }
-              }]
-            }' > ecosystem.config.js
-            
-            # Manage PM2 process
-            if /opt/cpanel/ea-nodejs20/bin/npm list -g pm2 >/dev/null 2>&1; then
-              echo "PM2 already installed"
-            else
-              /opt/cpanel/ea-nodejs20/bin/npm install -g pm2
-            fi
-            
-            if /opt/cpanel/ea-nodejs20/bin/npx pm2 list | grep -q next-app; then
-              /opt/cpanel/ea-nodejs20/bin/npx pm2 reload next-app --update-env
-            else
-              NODE_ENV=production /opt/cpanel/ea-nodejs20/bin/npx pm2 start ecosystem.config.js
-            fi
-            
+            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev
+            /opt/cpanel/ea-nodejs20/bin/npm install pm2 -g
+            /opt/cpanel/ea-nodejs20/bin/npx pm2 delete next-app || true
+            NODE_ENV=production /opt/cpanel/ea-nodejs20/bin/npx pm2 start server.js --name next-app
             /opt/cpanel/ea-nodejs20/bin/npx pm2 save
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 startup 2>&1 | tail -1 | bash
-            
-            # Verify status
-            sleep 5
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 list
+            /opt/cpanel/ea-nodejs20/bin/npx pm2 startup
