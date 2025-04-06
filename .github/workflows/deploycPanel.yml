@@ -20,6 +20,10 @@ jobs:
           # Force resolution of conflicting React types
           npm install @types/react@18.2.45 --legacy-peer-deps
           npm install @testing-library/react@13.4.0 --legacy-peer-deps
+          # Install compatible version of react-google-maps
+          npm install react-google-maps@17.0.0 --legacy-peer-deps
+          # Fix security vulnerabilities
+          npm audit fix --force
 
       - name: Install and Build
         env:
@@ -49,7 +53,7 @@ jobs:
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
           npm ci --legacy-peer-deps
-          npm run build -- --no-lint
+          npm run build --no-lint
           npm prune --production --omit=dev
 
       - name: Prepare Deployment
@@ -63,11 +67,11 @@ jobs:
           # Handle both JS and MJS config files
           if [ -f "next.config.js" ]; then
             # Fix invalid serverActions config
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: true,/' next.config.js
+            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.js
             cp next.config.js deployment/
           elif [ -f "next.config.mjs" ]; then
             # Fix invalid serverActions config for MJS
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: true,/' next.config.mjs
+            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.mjs
             cp next.config.mjs deployment/
           fi
           
