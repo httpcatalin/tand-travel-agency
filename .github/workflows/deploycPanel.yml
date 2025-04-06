@@ -49,7 +49,7 @@ jobs:
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
           npm ci --legacy-peer-deps
-          npm run build --no-lint
+          npm run build -- --no-lint
           npm prune --production --omit=dev
 
       - name: Prepare Deployment
