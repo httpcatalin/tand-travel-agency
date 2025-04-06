@@ -100,7 +100,6 @@ jobs:
           local-dir: ./deployment/
           server-dir: ./public_html/
           protocol: ftp
-          dangerous-clean-slate: true
           exclude: |
             *.md
             *.log
