@@ -29,9 +29,6 @@ jobs:
           # Install react-google-maps alternative (@react-google-maps/api)
           npm install @react-google-maps/api@2.17.1 --legacy-peer-deps
           
-          # Fix security vulnerabilities
-          npm audit fix --force
-
       - name: Install and Build
         env:
           NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
@@ -59,9 +56,9 @@ jobs:
           NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
           NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
         run: |
-          npm ci --legacy-peer-deps
+          npm ci --legacy-peer-deps --force
           npm run build --no-lint
-          npm prune --production --omit=dev
+          npm prune --production --omit=dev --force
 
       - name: Prepare Deployment
         run: |
