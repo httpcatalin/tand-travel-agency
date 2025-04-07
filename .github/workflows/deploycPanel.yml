@@ -98,7 +98,6 @@ jobs:
           local-dir: ./deployment/
           server-dir: ./public_html/
           protocol: ftps
-          timeout: 300
           security: loose
           dangerous-clean-slate: false
           exclude: |
