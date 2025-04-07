@@ -99,7 +99,7 @@ jobs:
           server-dir: ./public_html/
           protocol: ftps
           timeout: 300
-          security: strict
+          security: loose
           dangerous-clean-slate: false
           exclude: |
             **/.git
