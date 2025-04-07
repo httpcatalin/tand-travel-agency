@@ -90,14 +90,16 @@ jobs:
             AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
           </IfModule>' > deployment/.htaccess
       - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./deployment/
           server-dir: ./public_html/
-          protocol: ftp
+          protocol: ftps
+          dangerous-clean-slate: true
+          ftp-verbose: true
           exclude: |
             node_modules/**
             .git*
