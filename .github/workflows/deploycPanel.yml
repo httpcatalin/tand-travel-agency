@@ -109,7 +109,6 @@ jobs:
             **/*.md
             **/README*
             **/deployment
-          ftp-verbose: true
 
       - name: Setup cPanel PM2 Process
         uses: appleboy/ssh-action@v1.0.0
