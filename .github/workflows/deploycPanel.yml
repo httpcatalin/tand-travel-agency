@@ -90,7 +90,7 @@ jobs:
             AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
           </IfModule>' > deployment/.htaccess
       - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        uses: SamKirkland/FTP-Deploy-Action@4.3.4
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
@@ -98,16 +98,19 @@ jobs:
           local-dir: ./deployment/
           server-dir: ./public_html/
           protocol: ftps
-          dangerous-clean-slate: true
-          ftp-verbose: true
+          timeout: 300
+          security: strict
+          dangerous-clean-slate: false
           exclude: |
-            node_modules/**
-            .git*
-            *.log
-            *.md
-            deployment/**
-            README*
-            .next/cache/**
+            **/.git
+            **/.github
+            **/.next/cache
+            **/node_modules
+            **/*.log
+            **/*.md
+            **/README*
+            **/deployment
+          ftp-verbose: true
 
       - name: Setup cPanel PM2 Process
         uses: appleboy/ssh-action@v1.0.0
