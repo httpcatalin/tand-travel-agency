@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node server.js",
     "build": "next build",
-    "start": "npm install --production --force && NODE_ENV=production node server.mjs",
+    "start": "npm install --production --force && NODE_ENV=production node server.js",
     "generateDBFiles": "vitest --testNamePattern generateDBFiles --run",
     "generateAndUploadDB": "vitest --testNamePattern generateAndUploadDB --run",
     "lint": "next lint",
