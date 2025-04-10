@@ -1,198 +1,29 @@
-name: Deploy Next.js to cPanel
 on:
   push:
     branches:
       - main
-
+name: 🚀 Deploy website on push
 jobs:
-  deploy:
+  web-deploy:
+    name: 🎉 Deploy
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: 🚚 Get latest code
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v2
         with:
           node-version: "18"
 
-      - name: Resolve dependency conflicts
+      - name: 🔨 Build Project
         run: |
-          # Install core dependencies first
-          npm install @types/react@18.2.45 @testing-library/react@13.4.0 --legacy-peer-deps
-          
-          # Install modern alternatives for deprecated packages
-          npm install uuid@latest @hapi/sntp@latest rimraf@latest --legacy-peer-deps
-          
-          # Update core-js to latest version
-          npm install core-js@3 --legacy-peer-deps
-          
-          # Install react-google-maps alternative (@react-google-maps/api)
-          npm install @react-google-maps/api@2.17.1 --legacy-peer-deps
-          
-      - name: Install and Build
-        env:
-          NEXT_PUBLIC_BASE_URL: ${{ secrets.NEXT_PUBLIC_BASE_URL }}
-          NEXT_PUBLIC_APP_MODE: ${{ secrets.NEXT_PUBLIC_APP_MODE }}
-          NEXT_PUBLIC_REVALIDATION_TIME: ${{ secrets.NEXT_PUBLIC_REVALIDATION_TIME }}
-          NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_API_KEY: ${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}
-          NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}
-          NEXT_PUBLIC_FIREBASE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}
-          NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: ${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}
-          NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}
-          NEXT_PUBLIC_FIREBASE_APP_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}
-          NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: ${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}
-          NEXT_PUBLIC_FIREBASE_AUTH_EMAIL: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_EMAIL }}
-          NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD: ${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD }}
-          AUTH_TRUST_HOST: ${{ secrets.AUTH_TRUST_HOST }}
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          MONGODB_URI: ${{ secrets.MONGODB_URI }}
-          MAIL_SENDER_EMAIL: ${{ secrets.MAIL_SENDER_EMAIL }}
-          MAIL_API_TOKEN: ${{ secrets.MAIL_API_TOKEN }}
-          MAIL_SECRET_TOKEN: ${{ secrets.MAIL_SECRET_TOKEN }}
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          NOTION_API_KEY: ${{ secrets.NOTION_API_KEY }}
-          NOTION_CLIENT_ID: ${{ secrets.NOTION_CLIENT_ID }}
-          NOTION_CLIENT_SECRET: ${{ secrets.NOTION_CLIENT_SECRET }}
-        run: |
-          npm ci --legacy-peer-deps --force
+          npm install --force
           npm run build -- --no-lint
-          npm prune --production --omit=dev --force
-      - name: Prepare Deployment
-        run: |
-          mkdir -p deployment
-          cp -r .next/ deployment/
-          cp -r public/ deployment/
-          cp -r node_modules/ deployment/
-          cp package*.json deployment/
-          
-          # Handle both JS and MJS config files
-          if [ -f "next.config.js" ]; then
-            # Fix invalid serverActions config
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.js
-            cp next.config.js deployment/
-          elif [ -f "next.config.mjs" ]; then
-            # Fix invalid serverActions config for MJS
-            sed -i '/experimental: {/,/}/ s/serverActions: .*/serverActions: { enabled: true },/' next.config.mjs
-            cp next.config.mjs deployment/
-          fi
-          
-          echo 'RewriteEngine On
-          RewriteBase /
-          RewriteCond %{REQUEST_FILENAME} !-f
-          RewriteCond %{REQUEST_FILENAME} !-d
-          RewriteCond %{REQUEST_URI} !^/_next/static
-          RewriteCond %{REQUEST_URI} !^/_next/image
-          RewriteCond %{REQUEST_URI} !^/public
-          RewriteRule ^(.*)$ /index.html [L]
-          <IfModule mod_deflate.c>
-            AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript
-          </IfModule>' > deployment/.htaccess
-      - name: FTP Deploy
-        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+
+      - name: 📂 Sync files
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./deployment/
-          server-dir: ./public_html/
-          protocol: ftps
-          security: loose
-          dangerous-clean-slate: false
-          exclude: |
-            **/.git
-            **/.github
-            **/.next/cache
-            **/node_modules
-            **/*.log
-            **/*.md
-            **/README*
-            **/deployment
-
-      - name: Setup cPanel PM2 Process
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          ftp-timeout: 30000
-          ftp-verbose: true
-          ftp-keepalive: 30000
-          verbose: true
-          script: |
-            cd /home/tandtrav/public_html
-            
-            # Set up EA Node.js environment
-            source /opt/cpanel/ea-nodejs20/enable
-            export NPM_CONFIG_PREFIX=/home/tandtrav/.npm-global
-            export PATH=$PATH:/home/tandtrav/.npm-global/bin
-            
-            # Fix permissions
-            find . -type d -exec chmod 755 {} \;
-            find . -type f -exec chmod 644 {} \;
-            [ -f ".next/standalone/server.js" ] && chmod +x .next/standalone/server.js
-            
-            # Install production dependencies
-            /opt/cpanel/ea-nodejs20/bin/npm install --omit=dev --legacy-peer-deps
-            
-            # Configure PM2
-            echo 'module.exports = {
-              apps: [{
-                name: "next-app",
-                script: "node_modules/next/dist/bin/next",
-                args: "start",
-                cwd: "/home/tandtrav/public_html",
-                instances: 1,
-                exec_mode: "fork",
-                env: {
-                  NODE_ENV: "production",
-                  PORT: 3000,
-                  NEXT_PUBLIC_BASE_URL: "${{ secrets.NEXT_PUBLIC_BASE_URL }}",
-                  NEXT_PUBLIC_APP_MODE: "${{ secrets.NEXT_PUBLIC_APP_MODE }}",
-                  NEXT_PUBLIC_REVALIDATION_TIME: "${{ secrets.NEXT_PUBLIC_REVALIDATION_TIME }}",
-                  NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: "${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}",
-                  NEXT_PUBLIC_FIREBASE_API_KEY: "${{ secrets.NEXT_PUBLIC_FIREBASE_API_KEY }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN }}",
-                  NEXT_PUBLIC_FIREBASE_PROJECT_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_PROJECT_ID }}",
-                  NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET: "${{ secrets.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET }}",
-                  NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID }}",
-                  NEXT_PUBLIC_FIREBASE_APP_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_APP_ID }}",
-                  NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID: "${{ secrets.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_EMAIL: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_EMAIL }}",
-                  NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD: "${{ secrets.NEXT_PUBLIC_FIREBASE_AUTH_PASSWORD }}",
-                  AUTH_TRUST_HOST: "${{ secrets.AUTH_TRUST_HOST }}",
-                  AUTH_SECRET: "${{ secrets.AUTH_SECRET }}",
-                  MONGODB_URI: "${{ secrets.MONGODB_URI }}",
-                  MAIL_SENDER_EMAIL: "${{ secrets.MAIL_SENDER_EMAIL }}",
-                  MAIL_API_TOKEN: "${{ secrets.MAIL_API_TOKEN }}",
-                  MAIL_SECRET_TOKEN: "${{ secrets.MAIL_SECRET_TOKEN }}",
-                  CRON_SECRET: "${{ secrets.CRON_SECRET }}",
-                  NOTION_DATABASE_ID: "${{ secrets.NOTION_DATABASE_ID }}",
-                  NOTION_API_KEY: "${{ secrets.NOTION_API_KEY }}",
-                  NOTION_CLIENT_ID: "${{ secrets.NOTION_CLIENT_ID }}",
-                  NOTION_CLIENT_SECRET: "${{ secrets.NOTION_CLIENT_SECRET }}"
-                }
-              }]
-            }' > ecosystem.config.js
-            
-            # Manage PM2 process
-            if /opt/cpanel/ea-nodejs20/bin/npm list -g pm2 >/dev/null 2>&1; then
-              echo "PM2 already installed"
-            else
-              /opt/cpanel/ea-nodejs20/bin/npm install -g pm2
-            fi
-            
-            if /opt/cpanel/ea-nodejs20/bin/npx pm2 list | grep -q next-app; then
-              /opt/cpanel/ea-nodejs20/bin/npx pm2 reload next-app --update-env
-            else
-              NODE_ENV=production /opt/cpanel/ea-nodejs20/bin/npx pm2 start ecosystem.config.js
-            fi
-            
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 save
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 startup 2>&1 | tail -1 | bash
-            
-            # Verify status
-            sleep 5
-            /opt/cpanel/ea-nodejs20/bin/npx pm2 list
